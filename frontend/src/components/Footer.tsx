@@ -161,7 +161,12 @@ export default function Footer({
         <div className="container-page flex flex-col gap-1 py-5 text-xs text-neutral-400 sm:flex-row sm:items-center sm:justify-between">
           <p>
             {/* Copyright line as written in the content document (Global Footer). */}
-            <Copyright text={settings?.copyrightText?.trim() || content.copyright} name={settings?.name ?? ""} url={settings?.orgUrl} />
+            <Copyright
+              text={settings?.copyrightText?.trim() || content.copyright}
+              // trim(): the CMS name has a trailing space, which stopped the match.
+              name={settings?.name?.trim() || "Sewa Bharti Samiti Rajasthan"}
+              url={settings?.orgUrl?.trim() || "https://sewabhartirajasthan.org/"}
+            />
             {settings?.developerName && (
               <>
                 {" "}{settings.developerCreditPrefix ?? "Developed & Managed by"}{" "}
