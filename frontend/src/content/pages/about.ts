@@ -1,44 +1,46 @@
-// About page copy. Vision and the Secretary's message come from the client's
-// content document (section 3), translated into Hindi. Mission and the
-// organisational structure come from the live site (sewabhartirajasthan.org/about.php),
-// because the document has no text for them.
+// About page copy. Header, vision and the Secretary's message come from the
+// client's content document (section 3), verbatim. Mission and the
+// organisational structure are translated from the live site
+// (sewabhartirajasthan.org/about.php), because the document has no text for them.
 
 export const ABOUT_HEADER = {
-  eyebrow: "हमारे बारे में · सेवा का चक्र",
-  title: "करुणा और क्षमता की एक श्रृंखला",
+  /** Browser-tab title (unless the CMS sets an SEO title). */
+  metaTitle: "About Us",
+  eyebrow: "About Us · The Cycle of Service",
+  title: "A Chain Reaction of Compassion and Capability",
 };
 
 export const ABOUT_VISION = {
-  heading: "हमारी दृष्टि",
+  heading: "Our Vision",
   paragraphs: [
-    "‘नर सेवा, नारायण सेवा’ के गहन भाव में निहित, सेवा भारती समिति राजस्थान पारंपरिक दान-पुण्य से आगे बढ़कर कार्य करती है। ‘साथ मिलकर हम कर सकते हैं’ हमारे उस मिशन की प्रेरक शक्ति है, जिसके द्वारा हम वंचित समुदायों को परस्पर सहयोग के आत्मनिर्भर तंत्र में बदलना चाहते हैं।",
-    "हमारा विश्वास है कि सच्चा सामाजिक परिवर्तन तभी संभव है जब समाज द्वारा सशक्त किया गया व्यक्ति, समाज को लौटाने का गहरा नैतिक दायित्व अनुभव करे।",
+    "Rooted in the profound ethos of Nar Sewa, Narayan Sewa, Sewa Bharti Samiti Rajasthan goes beyond traditional charity. “Together We Can” is the driving force behind our mission to transform marginalized communities into self-sustaining ecosystems of support.",
+    "We believe that true social transformation is achieved only when an individual, once empowered by society, feels a deep moral responsibility to give back.",
   ],
 };
 
 export const ABOUT_MESSAGE = {
-  heading: "सचिव का संदेश",
+  heading: "Message from the Secretary",
   quote: [
-    "जब हम सहयोग देते हैं — चाहे घुमंतू समुदाय के किसी बच्चे को छात्रवृत्ति देकर, या किसी रोगी के लिए आवश्यक पुनर्वास सुनिश्चित करके — तो हम केवल तात्कालिक आवश्यकता पूरी नहीं कर रहे होते; हम एक भावी नेतृत्वकर्ता में निवेश कर रहे होते हैं।",
-    "अपनी प्राचीन गुरुकुल परंपरा के चरित्र-निर्माणकारी विचारों को आधुनिक जनकल्याण से जोड़कर, हम ऐसे सक्षम और आत्मनिर्भर नागरिक गढ़ते हैं जो अपनी जड़ों को याद रखते हैं।",
-    "‘साथ मिलकर हम कर सकते हैं’ का अर्थ है कि जैसे-जैसे हमारा परिवार बढ़ता है, वे लोग जो कभी मार्गदर्शन की तलाश में हमारे द्वार आए थे, अंततः हमारे सबसे मज़बूत स्तंभ बनकर अगली पीढ़ी की सेवा के लिए तैयार होंगे।",
+    "When we extend support—whether by providing a scholarship to a child from a nomadic community or securing critical rehabilitation for a patient—we are not just addressing an immediate need; we are investing in a future leader.",
+    "By integrating the profound, character-building concepts of our ancient Gurukul traditions into modern welfare, we forge capable, self-reliant citizens who remember their roots.",
+    "‘Together We Can’ means that as our family grows, the individuals who once walked through our doors seeking guidance will eventually walk out as our strongest pillars, ready to serve the next generation.",
   ],
-  // Name and photo not supplied yet (see context/2.0/CONTENT_GAPS.md).
-  byline: "सचिव, सेवा भारती समिति राजस्थान",
+  // Not in the content document; add the Secretary's name here once supplied.
+  byline: null as string | null,
 };
 
 export const ABOUT_MISSION = {
-  heading: "हमारा उद्देश्य",
+  heading: "Mission",
   paragraphs: [
-    "समाज के सामाजिक, शैक्षणिक एवं आर्थिक रूप से पिछड़े, वंचित एवं उपेक्षित बंधुओं का विकास कर उन्हें आत्मनिर्भर, स्वाभिमानी, स्वावलंबी बनाकर स्वस्थ, समरस एवं संगठित समाज का निर्माण करना है।",
-    "सभी सेवा कार्य संप्रदाय, जाति, वर्ग, प्रांत, भाषा, मत-मतांतर आदि बिना कोई भेदभाव से चलाकर, राष्ट्र भाव के प्रति आस्था एवं रुचि उत्पन्न करना। किसी भी प्रकार की दैवीय आपदा जैसे बाढ़, भूकंप, अकाल, अग्निकांड, महामारी आदि में भी यथासंभव सहयोग करना।",
+    "To uplift the socially, educationally and economically backward, deprived and neglected members of society, making them self-reliant, self-respecting and self-sufficient, and thereby to build a healthy, harmonious and organised society.",
+    "To run all service activities without any discrimination of sect, caste, class, region, language or belief, and to foster faith in and devotion to the spirit of the nation; and to extend every possible help during natural calamities such as floods, earthquakes, droughts, fires and epidemics.",
   ],
 };
 
 export const ABOUT_STRUCTURE = {
-  heading: "संगठनात्मक संरचना",
+  heading: "Organizational Structure",
   paragraphs: [
-    "प्रशासन की दृष्टि से राजस्थान के 33 जिलों को 3 प्रांत, 20 विभाग, 71 जिले, 7 महानगर एवं सभी खंड-तहसील केंद्रों में समितियाँ/उपसमितियाँ गठित हैं। संभाग एवं जिलों की सभी पंजीकृत समितियाँ सम्बद्ध हैं। नगरों में 1431 सेवा बस्तियाँ हैं तथा ग्रामीण क्षेत्रों के प्रत्येक ग्राम को अंतिम कार्य स्थान की तरह निश्चित किया हुआ है।",
-    "विभिन्न स्तरों पर नियमित अंतराल से होने वाली बैठकों, प्रशिक्षण वर्गों एवं अधिकारियों के नियमित प्रवास से कार्य एवं कार्यकर्ताओं की समुचित सम्भाल हो रही है।",
+    "For administrative purposes, the 33 districts of Rajasthan are organised into 3 Prants, 20 Vibhags, 71 districts and 7 metropolitan units, with committees and sub-committees formed at every block and tehsil centre. All registered committees of the divisions and districts are affiliated. There are 1,431 Sewa Bastis in the cities, and in rural areas every village has been designated as the last unit of work.",
+    "Regular meetings at every level, training camps and regular visits by office-bearers ensure that the work and the Karyakartas are properly supported.",
   ],
 };

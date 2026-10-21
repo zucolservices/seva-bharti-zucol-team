@@ -17,6 +17,7 @@ export interface GuestView {
 
 export interface NavLinkView {
   label: string;
+  /** Internal path, or an absolute http(s) URL (opened in a new tab). */
   href: string;
 }
 
@@ -26,6 +27,8 @@ export interface NavItemView {
   href: string | null;
   /** Non-empty → rendered as a dropdown. */
   children: NavLinkView[];
+  /** Desktop: shown beside the logo instead of in the main menu row. */
+  utility?: boolean;
 }
 
 /** Screen-reader labels (CMS: UI Text & Labels → a11y). `{n}` = a number. */
@@ -45,14 +48,21 @@ export const DEFAULT_A11Y: A11yLabels = {
   menuOpen: "Open menu",
   menuClose: "Close menu",
   homeLinkLabel: "Home",
-  eventPhotosHeading: "कार्यक्रम की तस्वीरें",
-  showPhoto: "तस्वीर {n} दिखाएं",
-  prevGuest: "पिछला अतिथि",
-  nextGuest: "अगला अतिथि",
-  showGuest: "अतिथि {n} दिखाएं",
+  eventPhotosHeading: "Event photos",
+  showPhoto: "Show photo {n}",
+  prevGuest: "Previous guest",
+  nextGuest: "Next guest",
+  showGuest: "Show guest {n}",
 };
 
 export const fillN = (label: string, n: number) => label.replace("{n}", String(n));
+
+/**
+ * `lang` for text that may be English (site copy) or Hindi (CMS fields):
+ * "hi" when it contains Devanagari, otherwise undefined (inherits `en`).
+ */
+export const langOf = (text?: string | null): "hi" | undefined =>
+  text && /[\u0900-\u097F]/.test(text) ? "hi" : undefined;
 
 export interface HeaderData {
   a11y: A11yLabels;
@@ -62,7 +72,7 @@ export interface HeaderData {
   brandTitle: string;
   tagline: string;
   items: NavItemView[];
-  /** Highlighted button after the menu (e.g. दान करें). */
+  /** Highlighted button after the menu (e.g. Donate). */
   cta?: NavLinkView | null;
 }
 

@@ -94,6 +94,52 @@ export async function getGlobal<S extends GlobalSlug>(slug: S): Promise<Config["
   });
 }
 
+/** Slugs of the editable page-content globals (src/content/resolve.ts merges them over the static defaults). */
+export type ContentSlug =
+  | "home-content"
+  | "about-content"
+  | "work-content"
+  | "csr-content"
+  | "volunteer-content"
+  | "gallery-content"
+  | "contact-content"
+  | "partners-content"
+  | "footer-content";
+
+/** Replace populated upload objects' `url` by its site-relative form (see mediaUrl). */
+function relativizeMedia(v: unknown): unknown {
+  if (Array.isArray(v)) return v.map(relativizeMedia);
+  if (v && typeof v === "object") {
+    const o = v as Record<string, unknown>;
+    if (typeof o.url === "string" && typeof o.filename === "string") {
+      return { ...o, url: mediaUrl(o as unknown as Media) };
+    }
+    return Object.fromEntries(Object.entries(o).map(([k, x]) => [k, relativizeMedia(x)]));
+  }
+  return v;
+}
+
+/**
+ * An editable page-content global (depth 1 so uploads are populated), or null
+ * when missing / the CMS is unreachable / snapshot mode - callers then use the
+ * static defaults via resolve*() in src/content/resolve.ts.
+ */
+export async function getContent(slug: ContentSlug): Promise<Record<string, unknown> | null> {
+  "use cache";
+  cacheTag(`global:${slug}`, "globals", "media");
+  return safe(`global:${slug}`, null, async () => {
+    if (SNAPSHOT) return null;
+    try {
+      const res = await cmsFetch<unknown>(`/api/globals/${encodeURIComponent(slug)}?depth=1`);
+      return res && typeof res === "object" ? (relativizeMedia(res) as Record<string, unknown>) : null;
+    } catch (err) {
+      // An older CMS has no such global (404): not a failure, just use the defaults.
+      if (err instanceof Error && / 404 /.test(err.message)) return null;
+      throw err;
+    }
+  });
+}
+
 export async function getPillars(): Promise<Pillar[]> {
   "use cache";
   cacheTag("pillars", "media");

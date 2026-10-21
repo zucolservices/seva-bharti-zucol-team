@@ -1,7 +1,7 @@
 import Image from "next/image";
-import { GUEST_PLACEHOLDER, type GuestView } from "@/lib/view-types";
+import { GUEST_PLACEHOLDER, langOf, type GuestView } from "@/lib/view-types";
 
-// अतिथि card — big photo on the left; name, designation and testimonial
+// Guest card — big photo on the left; name, designation and testimonial
 // on the right (horizontal layout).
 export default function GuestCard({ guest }: { guest: GuestView }) {
   return (
@@ -17,14 +17,14 @@ export default function GuestCard({ guest }: { guest: GuestView }) {
       </div>
       <div className="flex flex-1 flex-col justify-center p-5">
         <figcaption>
-          <span lang="hi" className="block font-semibold text-ink">
+          <span lang={langOf(guest.name)} className="block font-semibold text-ink">
             {guest.name}
           </span>
-          <span lang="hi" className="block text-xs font-medium text-sewablue-600">
+          <span lang={langOf(guest.designation)} className="block text-xs font-medium text-sewablue-600">
             {guest.designation}
           </span>
         </figcaption>
-        <blockquote lang="hi" className="mt-3 border-t border-saffron-100 pt-3 text-sm leading-relaxed text-ink-soft">
+        <blockquote lang={langOf(guest.testimonial)} className="mt-3 border-t border-saffron-100 pt-3 text-sm leading-relaxed text-ink-soft">
           “{guest.testimonial}”
         </blockquote>
       </div>

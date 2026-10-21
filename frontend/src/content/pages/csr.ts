@@ -1,43 +1,47 @@
 // "Major Projects & CSR" copy from the client's content document (section 5),
-// translated into Hindi. The pathology lab details come from the live site.
+// verbatim (initiative names as in the layout section). The pathology lab
+// details are translated from the live site.
 
 export const CSR_HEADER = {
-  eyebrow: "प्रमुख परियोजनाएँ एवं CSR",
-  title: "सशक्तिकरण के चक्र में निवेश करें",
+  eyebrow: "Major Projects & CSR",
+  title: "Invest in the Cycle of Empowerment",
   subtitle:
-    "सेवा भारती के साथ कॉर्पोरेट सामाजिक उत्तरदायित्व (CSR) एक ऐसा निवेश है, जिस पर सामाजिक लाभ निरंतर बढ़ता जाता है। जब सहयोगी हमारे साथ हाथ मिलाते हैं, तो वे सद्भावना की एक स्थायी श्रृंखला आरंभ करते हैं। ‘साथ मिलकर हम कर सकते हैं’ — हम ऐसा सुदृढ़ आधारभूत ढाँचा खड़ा कर सकते हैं, जहाँ आज आपके सहयोग से सशक्त हुए समुदाय कल स्वयं राष्ट्र की प्रगति को आगे बढ़ाएँगे।",
+    "Corporate Social Responsibility with Sewa Bharti is an investment with compounding social interest. When partners join hands with us, they ignite a sustainable chain of goodwill. “Together We Can” build resilient infrastructure where the communities empowered by your support today will independently drive the progress of our nation tomorrow.",
 };
 
-export const CSR_INITIATIVES_HEADING = "वर्तमान पहल";
+export const CSR_INITIATIVES_HEADING = "Current Initiatives";
 
-export const CSR_INITIATIVES: { title: string; text: string }[] = [
+/** `id` = anchor used by the header menu (/csr#...). */
+export const CSR_INITIATIVES: { id: string; title: string; text: string }[] = [
   {
-    title: "घुमंतू समुदाय छात्रवृत्ति",
-    text: "पीढ़ियों से चली आ रही गरीबी के चक्र को तोड़ने के लिए समर्पित पहल, जो घुमंतू पृष्ठभूमि के विद्यार्थियों को निर्बाध शैक्षिक आर्थिक सहायता प्रदान करती है, ताकि भविष्य में उनके पास अपने समुदायों के उत्थान के लिए आवश्यक संसाधन हों।",
+    id: "scholarships",
+    title: "Nomadic Community Scholarships",
+    text: "A dedicated initiative designed to break generational poverty by providing uninterrupted educational funding to students from nomadic backgrounds, ensuring they have the resources to uplift their own communities in the future.",
   },
   {
-    title: "उन्नत चिकित्सा अवसंरचना",
-    text: "निरंतर एवं उच्च-गुणवत्तापूर्ण देखभाल के लिए अत्याधुनिक फिज़ियोथेरेपी एवं न्यूरो-थेरेपी पुनर्वास केंद्रों की स्थापना, जिससे असहाय रोगी स्वस्थ होकर समाज में सक्रिय योगदान देने वाले नागरिक बन सकें।",
+    id: "medical-infrastructure",
+    title: "Advanced Medical Infrastructure",
+    text: "Establishing cutting-edge physiotherapy and neuro-therapy rehabilitation centers to provide continuous, high-quality care, transforming vulnerable patients into healthy, active contributors to society.",
   },
   {
-    title: "शैक्षणिक इंटर्नशिप एवं लेखा पाठ्यक्रम",
-    text: "विश्वविद्यालयों और शैक्षिक संस्थानों के साथ समझौता ज्ञापनों (MoU) के माध्यम से व्यावहारिक व्यावसायिक प्रशिक्षण, जो सीधे दीर्घकालिक आजीविका सृजन में परिणत होता है।",
+    id: "internships",
+    title: "Academic Internships & Accounting Courses",
+    text: "Facilitating MoUs with universities and educational foundations to provide hands-on vocational training that translates directly into long-term livelihood generation.",
   },
 ];
 
 export const CSR_PATH_LAB = {
-  title: "सेवा पैथोलॉजी लैब",
-  intro: "सेवा सदन में आधुनिक मशीनों द्वारा न्यूनतम दरों पर सभी प्रकार की जाँचें।",
-  addressLabel: "पता",
-  address: "सहकार लेन, सहकार मार्ग, लालकोठी, जयपुर-302007",
-  emailLabel: "ईमेल",
+  title: "Sewa Pathology Lab",
+  intro: "All types of diagnostic tests on modern machines at minimal rates, at Sewa Sadan.",
+  addressLabel: "Address",
+  address: "Sahkar Lane, Sahkar Marg, Lal Kothi, Jaipur-302007",
+  emailLabel: "Email",
   email: "sewabhartipathlabjpr@gmail.com",
-  timingLabel: "समय",
-  timing: "प्रातः 8:00 से सायं 6:30 बजे तक",
+  timingLabel: "Timings",
+  timing: "8:00 AM to 6:30 PM",
 };
 
 export const CSR_CTA = {
-  title: "सशक्तिकरण के इस चक्र में सहभागी बनें",
-  primary: { label: "CSR साझेदारी के लिए संपर्क करें", href: "/contact" },
-  secondary: { label: "हमारे सेवा सहयोगी", href: "/partners" },
+  primary: { label: "Contact Our CSR Team Today", href: "/contact" },
+  secondary: { label: "Our Sewa Partners", href: "/partners" },
 };

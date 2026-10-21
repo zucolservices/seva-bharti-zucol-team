@@ -41,6 +41,17 @@ const nextConfig: NextConfig = {
       ? [{ protocol: "https", hostname: process.env.BLOB_STORE_HOSTNAME }]
       : [],
   },
+  async redirects() {
+    // Pillar slugs were renamed in the CMS on 18 Oct 2026; keep the old URLs
+    // working (rules.md: a slug change needs a redirect). Temporary (307) in
+    // case the CMS slugs change again.
+    return [
+      { source: "/shiksha", destination: "/education", permanent: false },
+      { source: "/swasthya", destination: "/healthcare", permanent: false },
+      { source: "/swavalamban", destination: "/selfreliance", permanent: false },
+      { source: "/samajik", destination: "/socialharmony", permanent: false },
+    ];
+  },
   async rewrites() {
     // Serve CMS-hosted media files same-origin (mediaUrl() makes them relative).
     return [{ source: "/api/media/file/:path*", destination: `${CMS_URL}/api/media/file/:path*` }];

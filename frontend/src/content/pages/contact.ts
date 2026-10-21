@@ -1,8 +1,8 @@
-// Contact page copy from the client's content document (section 8), in Hindi.
+// Contact page copy from the client's content document (section 8), verbatim.
 
 export const CONTACT_HEADER = {
-  eyebrow: "संपर्क करें",
-  title: "बदलाव की शुरुआत के लिए हमसे जुड़ें",
+  eyebrow: "Contact Us",
+  title: "Connect With Us to Spark Change",
   subtitle:
-    "चाहे आप पहली बार समाज को लौटाने के लिए आगे आ रहे हों, जैसे कभी आपकी सहायता हुई थी वैसे ही दूसरों की सहायता के लिए लौट रहे हों, या किसी CSR पहल में साझेदारी करना चाहते हों — आपका स्थान यहाँ है। साथ मिलकर हम एक आत्मनिर्भर भविष्य बना सकते हैं।",
+    "Whether you are stepping forward to give back for the first time, returning to help others as you were once helped, or seeking to partner on a CSR initiative, your place is here. Together, we can build a self-reliant future.",
 };

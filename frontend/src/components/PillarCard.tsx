@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { Pillar } from "@/payload-types";
+import type { PillarName } from "@/content/pillars";
+import { langOf } from "@/lib/view-types";
 
 export default function PillarCard({
   pillar,
@@ -8,8 +10,8 @@ export default function PillarCard({
   ctaLabel,
 }: {
   pillar: Pillar;
-  /** Overrides the CMS names (Hindi title + English badge). */
-  names?: { hi: string; en: string };
+  /** Overrides the CMS names (English title + transliterated badge). */
+  names?: PillarName;
   /** Overrides the CMS summary (e.g. the home-page one-liners). */
   summary?: string;
   ctaLabel?: string | null;
@@ -18,6 +20,8 @@ export default function PillarCard({
   const ring = isBlue ? "border-sewablue-100 hover:border-sewablue-300" : "border-saffron-100 hover:border-saffron-300";
   const badge = isBlue ? "bg-sewablue-50 text-sewablue-700" : "bg-saffron-50 text-saffron-700";
   const cta = isBlue ? "text-sewablue-600" : "text-saffron-700";
+  const title = names?.title ?? (pillar.nameEn || pillar.nameHi);
+  const text = summary ?? (pillar.summaryEn || pillar.summaryHi);
 
   return (
     <Link
@@ -27,16 +31,16 @@ export default function PillarCard({
       <span
         className={`inline-flex w-fit items-center rounded-full px-3 py-1 text-sm font-semibold ${badge}`}
       >
-        {names?.en ?? pillar.nameEn}
+        {names?.badge ?? pillar.nameEn}
       </span>
-      <h3 lang="hi" className="mt-3 text-xl font-bold text-ink">
-        {names?.hi ?? pillar.nameHi}
+      <h3 lang={langOf(title)} className="mt-3 text-xl font-bold text-ink">
+        {title}
       </h3>
-      <p lang="hi" className="mt-2 flex-1 text-sm leading-relaxed text-ink-soft">
-        {summary ?? pillar.summaryHi}
+      <p lang={langOf(text)} className="mt-2 flex-1 text-sm leading-relaxed text-ink-soft">
+        {text}
       </p>
       {ctaLabel && (
-        <span lang="hi" className={`mt-4 text-sm font-semibold ${cta}`}>
+        <span lang={langOf(ctaLabel)} className={`mt-4 text-sm font-semibold ${cta}`}>
           {ctaLabel}{" "}
           <span aria-hidden className="inline-block transition-transform group-hover:translate-x-1">
             →

@@ -18,9 +18,10 @@
   --color-saffron-400: #ffa347;
   --color-saffron-500: #ff9933;
   --color-saffron-600: #e8841f;
-  --color-saffron-700: #c26a12;
-  --color-saffron-800: #96510e;
-  --color-saffron-900: #6f3c0c;
+  /* 700+ are text shades: ≥4.5:1 on white, cream and saffron-50/100 (WCAG AA). */
+  --color-saffron-700: #a3560b;
+  --color-saffron-800: #7f4209;
+  --color-saffron-900: #5f320a;
 
   /* Sewa blue (secondary, from logo) */
   --color-sewablue-50: #e9f6fd;
@@ -58,11 +59,31 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Devanagari text needs a little extra line-height for stacked matras. */
-.font-hi,
-[lang="hi"] {
-  font-family: var(--font-devanagari);
-  line-height: 1.85;
+@layer base {
+  /* Devanagari needs a little extra line-height for stacked matras. In the
+     base layer so a component's own leading-* utility still wins (headings). */
+  .font-hi,
+  [lang="hi"] {
+    font-family: var(--font-devanagari);
+    line-height: 1.85;
+  }
+
+  /* Text wrapping: headings balance their lines (no lone last word); running
+     text avoids one-word orphans on the last line. */
+  h1,
+  h2,
+  h3,
+  h4,
+  figcaption {
+    text-wrap: balance;
+  }
+  p,
+  li,
+  dd,
+  blockquote,
+  address {
+    text-wrap: pretty;
+  }
 }
 
 /* Accessible focus states for keyboard users. */
@@ -74,10 +95,25 @@ button:focus-visible,
   border-radius: 3px;
 }
 
+/* On the dark top bar and footer the blue ring is too faint; use white. */
+.bg-sewablue-800 :is(a, button):focus-visible,
+.bg-footer :is(a, button):focus-visible {
+  outline-color: #fff;
+}
+
 /* Reusable content width container. */
+/* Header + top bar: a little wider than page content so the full menu fits on one row. */
+.container-wide {
+  width: 100%;
+  max-width: 80rem;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
 .container-page {
   width: 100%;
   max-width: 72rem;
   margin-inline: auto;
   padding-inline: 1.25rem;
 }
+

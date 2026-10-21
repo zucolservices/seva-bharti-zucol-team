@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { mediaAlt, mediaUrl, type MediaRef } from "@/lib/cms";
+import { langOf } from "@/lib/view-types";
 
 // Renders CMS rich text (Lexical JSON from Payload) with the site's typography.
 // Output is plain React elements (no dangerouslySetInnerHTML), so editor
@@ -53,6 +54,12 @@ function blockStyle(node: LexicalNode): CSSProperties | undefined {
     style.paddingInlineStart = `${node.indent * 2}rem`;
   }
   return Object.keys(style).length ? style : undefined;
+}
+
+/** All text in the tree (to pick the `lang` of the block). */
+function plainText(node: LexicalNode): string {
+  if (typeof node.text === "string") return node.text;
+  return Array.isArray(node.children) ? node.children.map((c) => (isNode(c) ? plainText(c) : "")).join(" ") : "";
 }
 
 function renderChildren(node: LexicalNode): ReactNode[] {
@@ -189,7 +196,7 @@ export default function RichText({
   if (!root) return null;
   return (
     <div
-      lang="hi"
+      lang={langOf(plainText(root))}
       className={`space-y-4 text-base leading-relaxed text-ink-soft [&_a]:font-medium [&_a]:text-sewablue-700 [&_a]:underline [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-ink [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-ink [&_li]:ml-5 [&_ol]:list-decimal [&_strong]:text-ink [&_ul]:list-disc ${className}`}
     >
       {renderChildren(root)}

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { DEFAULT_A11Y, fillN, type A11yLabels, type PhotoView } from "@/lib/view-types";
+import { DEFAULT_A11Y, fillN, langOf, type A11yLabels, type PhotoView } from "@/lib/view-types";
 
 // Photo block for an event detail page.
 // Layout: the selected photo fills the main frame on the LEFT (70% width).
@@ -21,11 +21,11 @@ export default function EventPhotos({
 
   return (
     <section>
-      <h2 lang="hi" className="sr-only">
+      <h2 lang={langOf(a11y.eventPhotosHeading)} className="sr-only">
         {a11y.eventPhotosHeading}
       </h2>
 
-      <div className="grid items-stretch gap-4 md:grid-cols-[8fr_2fr]">
+      <div className="grid grid-cols-[minmax(0,1fr)] items-stretch gap-4 md:grid-cols-[8fr_2fr]">
         {/* Main photo — left (80%) */}
         <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-saffron-100 bg-saffron-50">
           {/* blurred backdrop fills the frame */}
@@ -35,6 +35,7 @@ export default function EventPhotos({
             alt=""
             aria-hidden
             fill
+            priority // same file as the main photo; load it eagerly too (LCP)
             sizes="(max-width: 768px) 100vw, 70vw"
             className="scale-110 object-cover blur-xl opacity-60"
           />

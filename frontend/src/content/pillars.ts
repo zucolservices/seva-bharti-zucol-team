@@ -25,9 +25,16 @@ export function byPillar<T>(map: Record<PillarKey, T>, slug: string): T | undefi
   return key ? map[key] : undefined;
 }
 
-export const PILLAR_NAMES: Record<PillarKey, { hi: string; en: string }> = {
-  shiksha: { hi: "शिक्षा", en: "Shiksha · Education" },
-  swasthya: { hi: "स्वास्थ्य", en: "Swasthya · Healthcare" },
-  swavalamban: { hi: "स्वावलंबन", en: "Swavalamban · Self-Reliance" },
-  samajik: { hi: "सामाजिक समरसता", en: "Samajik Samarasata · Social Harmony" },
+/**
+ * English display names (content document, section 4). `title` is the main
+ * label (menu, card heading); `badge` is the Sanskrit/Hindi name in Latin
+ * script, shown as a small badge.
+ */
+export type PillarName = { title: string; badge: string };
+
+export const PILLAR_NAMES: Record<PillarKey, PillarName> = {
+  shiksha: { title: "Education", badge: "Shiksha" },
+  swasthya: { title: "Healthcare", badge: "Swasthya" },
+  swavalamban: { title: "Self-Reliance", badge: "Swavalamban" },
+  samajik: { title: "Social Harmony", badge: "Samajik Samarasata" },
 };

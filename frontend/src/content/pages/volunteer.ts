@@ -1,23 +1,19 @@
 // "Volunteer & Karyakarta Portal" copy from the client's content document
-// (section 6), translated into Hindi.
+// (section 6), verbatim.
 
 export const VOLUNTEER_HEADER = {
-  eyebrow: "कार्यकर्ता पोर्टल",
-  title: "सेवा के चक्र से जुड़ें",
+  eyebrow: "Volunteer & Karyakarta Portal",
+  title: "Join the Circle of Service",
   subtitle:
-    "हमारे अनेक सबसे समर्पित कार्यकर्ता कभी स्वयं हमारे कार्यक्रमों के लाभार्थी थे। वे इस बात का जीवंत प्रमाण हैं कि सशक्तिकरण से ही सेवा का भाव जन्म लेता है। आगे आइए और आज के लाभार्थियों को कल के समाज के स्तंभ बनाने में हमारा सहयोग कीजिए।",
+    "Many of our most passionate volunteers were once the very individuals who benefited from our programs. They are living proof that empowerment breeds service. Step forward and help us turn the recipients of today into the societal pillars of tomorrow.",
 };
 
 export const VOLUNTEER_CAPACITY = {
-  heading: "क्षमता निर्माण",
-  badge: "दो-दिवसीय प्रशिक्षण",
-  text: "अपने मिशन की निरंतरता सुनिश्चित करने के लिए हम कार्यकर्ताओं हेतु दो-दिवसीय गहन प्रशिक्षण मॉड्यूल आयोजित करते हैं। आधुनिक प्रचार-प्रसार, सोशल मीडिया प्रबंधन तथा अपने ऐतिहासिक कार्यों के व्यवस्थित संग्रह में दक्षता प्राप्त कर हमारे कार्यकर्ता इस मशाल को स्वतंत्र रूप से आगे ले जाने में सक्षम बनते हैं।",
-  // Derived only from the paragraph above.
-  highlights: ["आधुनिक प्रचार-प्रसार", "सोशल मीडिया प्रबंधन", "ऐतिहासिक कार्यों का व्यवस्थित संग्रह"],
+  heading: "Capacity Building",
+  text: "To ensure our mission's sustainability, we conduct intensive two-day training modules for Karyakartas. By mastering modern publicity, social media management, and the systematic archiving of our historical impact, our volunteers are equipped to carry the torch forward independently.",
 };
 
 export const VOLUNTEER_CTA = {
-  text: "आज के लाभार्थियों को कल के समाज का स्तंभ बनाने में सहभागी बनें।",
-  label: "सेवा से जुड़ें",
+  label: "Join the Circle of Service",
   href: "/contact",
 };

@@ -4,8 +4,9 @@ import StatCounter from "@/components/StatCounter";
 import RichText from "@/components/RichText";
 import { mediaAlt, mediaUrl } from "@/lib/cms";
 import type { Pillar, UiString } from "@/payload-types";
-import { WORK_PILLARS } from "@/content/pages/work";
-import { byPillar } from "@/content/pillars";
+import { WORK_PILLARS as DEFAULT_WORK_PILLARS } from "@/content/pages/work";
+import { PILLAR_NAMES, byPillar } from "@/content/pillars";
+import { langOf } from "@/lib/view-types";
 
 // Accent-aware class sets so each pillar can lean saffron or blue.
 const accentMap = {
@@ -14,7 +15,7 @@ const accentMap = {
     badge: "bg-saffron-100 text-saffron-700",
     heading: "text-saffron-700",
     strip: "border-saffron-500/80",
-    statValue: "text-saffron-600",
+    statValue: "text-saffron-700",
     cardHover: "hover:border-saffron-300 hover:shadow-md",
     topbar: "bg-saffron-500",
     leftbar: "border-l-saffron-400",
@@ -39,9 +40,12 @@ const accentMap = {
 export default function PillarPage({
   pillar,
   labels,
+  workPillars = DEFAULT_WORK_PILLARS,
 }: {
   pillar: Pillar;
   labels?: UiString["pillarPage"] | null;
+  /** Per-pillar intro copy (Work Content global); static default when omitted. */
+  workPillars?: typeof DEFAULT_WORK_PILLARS;
 }) {
   const c = accentMap[pillar.accent] ?? accentMap.saffron;
   const banner = mediaUrl(pillar.banner, "hero");
@@ -49,7 +53,12 @@ export default function PillarPage({
   const stats = pillar.stats ?? [];
   const stories = pillar.successStories ?? [];
   const aayaam = pillar.aayaam ?? [];
-  const intro = byPillar(WORK_PILLARS, pillar.slug);
+  const intro = byPillar(workPillars, pillar.slug);
+  // Document names ("Education", badge "Shiksha"); CMS names only as a fallback.
+  const names = byPillar(PILLAR_NAMES, pillar.slug);
+  // English first; Hindi only when the English field is empty.
+  const title = names ? names.title : pillar.nameEn || pillar.nameHi;
+  const summary = pillar.summaryEn || pillar.summaryHi;
 
   return (
     <>
@@ -68,20 +77,20 @@ export default function PillarPage({
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/40 to-black/10" />
         <div className="container-page absolute inset-x-0 bottom-0">
           <div className="pb-8 md:pb-10">
-            <p className="inline-block rounded bg-saffron-500 px-2.5 py-1 text-xs font-bold uppercase tracking-[0.15em] text-white">
-              {labels?.bannerPrefix ? `${labels.bannerPrefix} · ${pillar.nameEn}` : pillar.nameEn}
+            <p className="inline-block rounded bg-saffron-500 px-2.5 py-1 text-xs font-bold uppercase tracking-[0.15em] text-ink">
+              {names ? names.badge : labels?.bannerPrefix ? `${labels.bannerPrefix} · ${pillar.nameEn}` : pillar.nameEn}
             </p>
             <h1
-              lang="hi"
+              lang={langOf(title)}
               className="mt-3 text-3xl font-bold leading-snug tracking-tight text-white drop-shadow md:text-4xl lg:text-5xl"
             >
-              {pillar.nameHi}
+              {title}
             </h1>
             <p
-              lang="hi"
+              lang={langOf(summary)}
               className="mt-3 max-w-2xl text-sm leading-relaxed text-white/90 md:text-base"
             >
-              {pillar.summaryHi}
+              {summary}
             </p>
           </div>
         </div>
@@ -93,10 +102,10 @@ export default function PillarPage({
       {intro && (
         <section className="container-page pt-12 md:pt-14">
           <div className={`rounded-2xl border bg-white p-6 shadow-sm md:p-8 ${c.border}`}>
-            <p lang="hi" className={`text-xl font-bold italic md:text-2xl ${c.heading}`}>
+            <p className={`text-xl font-bold italic md:text-2xl ${c.heading}`}>
               {intro.tagline}
             </p>
-            <p lang="hi" className="mt-3 max-w-3xl leading-relaxed text-ink-soft">
+            <p className="mt-3 max-w-3xl leading-relaxed text-ink-soft">
               {intro.text}
             </p>
           </div>
@@ -118,11 +127,11 @@ export default function PillarPage({
                 {/* Accent top bar — formal, consistent card header. */}
                 <div className={`h-1.5 w-full ${c.topbar}`} />
                 <div className="p-6">
-                  <h3 lang="hi" className={`text-lg font-semibold ${c.heading}`}>
-                    {a.titleHi}
+                  <h3 lang={langOf(a.titleEn || a.titleHi)} className={`text-lg font-semibold ${c.heading}`}>
+                    {a.titleEn || a.titleHi}
                   </h3>
                   <p
-                    lang="hi"
+                    lang={langOf(a.descHi)}
                     className="mt-3 text-sm leading-relaxed text-ink-soft"
                   >
                     {a.descHi}
@@ -148,7 +157,7 @@ export default function PillarPage({
                   suffix={stat.suffix ?? ""}
                   className={`text-4xl font-extrabold md:text-5xl ${c.statValue}`}
                 />
-                <span lang="hi" className="mt-2 text-sm text-ink-soft md:text-base">
+                <span lang={langOf(stat.labelHi)} className="mt-2 text-sm text-ink-soft md:text-base">
                   {stat.labelHi}
                 </span>
               </div>
@@ -157,10 +166,13 @@ export default function PillarPage({
         </section>
       )}
 
-      {/* 3. Success stories (left) + Aayaam grid (right, compact). */}
+      {/* 3. Success stories (left) + Aayaam grid (right, compact). Either side
+          is left out when the CMS has no entries, so no empty headings show. */}
+      {(stories.length > 0 || aayaam.length > 0) && (
       <section className="container-page py-12 md:py-14">
-        <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:gap-12">
+        <div className={stories.length > 0 && aayaam.length > 0 ? "grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:gap-12" : ""}>
           {/* Success stories */}
+          {stories.length > 0 && (
           <div>
             <SectionHeading eyebrow={labels?.successStories?.eyebrow} title={labels?.successStories?.title} />
             <div className="mt-6 space-y-6">
@@ -185,8 +197,8 @@ export default function PillarPage({
                       </div>
                     )}
                     <div className="min-w-0">
-                      <h3 lang="hi" className="text-lg font-semibold text-ink">
-                        {s.nameHi}
+                      <h3 lang={langOf(s.nameEn || s.nameHi)} className="text-lg font-semibold text-ink">
+                        {s.nameEn || s.nameHi}
                         {s.age != null && (
                           <span className="ml-2 text-sm font-normal text-ink-soft">
                             ({labels?.ageSuffix ? `${s.age} ${labels.ageSuffix}` : s.age})
@@ -195,14 +207,14 @@ export default function PillarPage({
                       </h3>
                       {s.bioHi && (
                         <p
-                          lang="hi"
+                          lang={langOf(s.bioHi)}
                           className={`mt-1 text-sm font-medium ${c.heading}`}
                         >
                           {s.bioHi}
                         </p>
                       )}
                       <p
-                        lang="hi"
+                        lang={langOf(s.storyHi)}
                         className="mt-2 text-sm leading-relaxed text-ink-soft"
                       >
                         {s.storyHi}
@@ -213,11 +225,13 @@ export default function PillarPage({
               })}
             </div>
           </div>
+          )}
 
           {/* Vertical separator + Aayaam grid (compact cards). */}
-          <div className="lg:border-l lg:border-saffron-100 lg:pl-12">
+          {aayaam.length > 0 && (
+          <div className={stories.length > 0 ? "lg:border-l lg:border-saffron-100 lg:pl-12" : ""}>
             <SectionHeading eyebrow={labels?.aayaam?.eyebrow} title={labels?.aayaam?.title} />
-            <div className="mt-6 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-2">
+            <div className={`mt-6 grid grid-cols-2 gap-2.5 sm:grid-cols-3 ${stories.length > 0 ? "lg:grid-cols-2" : "lg:grid-cols-4"}`}>
               {aayaam.map((a, i) => (
                 <article
                   key={a.id ?? i}
@@ -229,17 +243,19 @@ export default function PillarPage({
                     {i + 1}
                   </span>
                   <h3
-                    lang="hi"
+                    lang={langOf(a.titleEn || a.titleHi)}
                     className="text-xs font-semibold leading-snug text-ink"
                   >
-                    {a.titleHi}
+                    {a.titleEn || a.titleHi}
                   </h3>
                 </article>
               ))}
             </div>
           </div>
+          )}
         </div>
       </section>
+      )}
     </>
   );
 }

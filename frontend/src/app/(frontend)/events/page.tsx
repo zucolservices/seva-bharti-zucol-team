@@ -6,6 +6,7 @@ import SectionHeading from "@/components/SectionHeading";
 import GuestCarousel from "@/components/GuestCarousel";
 import { formatDate, getEvents, getGlobal, mediaAlt, mediaUrl } from "@/lib/cms";
 import { toGuestViews, toPhotoViews, a11yLabels } from "@/lib/site-data";
+import { langOf } from "@/lib/view-types";
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getGlobal("events-page");
@@ -38,6 +39,7 @@ export default async function EventsPage() {
               {events.map((e) => {
                 const cover = mediaUrl(e.coverImage, "card");
                 const date = formatDate(e.date);
+                const title = e.titleEn || e.titleHi;
                 return (
                   <Link
                     key={e.id}
@@ -48,7 +50,7 @@ export default async function EventsPage() {
                       <div className="relative aspect-[16/10] overflow-hidden bg-saffron-50">
                         <Image
                           src={cover}
-                          alt={mediaAlt(e.coverImage, e.titleHi)}
+                          alt={mediaAlt(e.coverImage, title)}
                           fill
                           sizes="(max-width: 768px) 100vw, 33vw"
                           className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -61,8 +63,8 @@ export default async function EventsPage() {
                       </div>
                     )}
                     <div className="flex flex-1 flex-col p-5">
-                      <h3 lang="hi" className="text-lg font-bold leading-snug text-ink">
-                        {e.titleHi}
+                      <h3 lang={langOf(title)} className="text-lg font-bold leading-snug text-ink">
+                        {title}
                       </h3>
                       {e.location && (
                         <p className="mt-2 inline-flex w-fit items-center gap-1 rounded-full bg-saffron-50 px-3 py-1 text-xs font-medium text-saffron-700">
@@ -72,11 +74,11 @@ export default async function EventsPage() {
                           {e.location}
                         </p>
                       )}
-                      <p lang="hi" className="mt-3 flex-1 text-sm leading-relaxed text-ink-soft">
+                      <p lang={langOf(e.summaryHi)} className="mt-3 flex-1 text-sm leading-relaxed text-ink-soft">
                         {e.summaryHi}
                       </p>
                       {readMore && (
-                        <span lang="hi" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-sewablue-600">
+                        <span lang={langOf(readMore)} className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-sewablue-600">
                           {readMore}
                           <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
                         </span>
@@ -95,7 +97,7 @@ export default async function EventsPage() {
             <div className="flex items-end justify-between">
               <SectionHeading eyebrow={page?.galleryHeading?.eyebrow} title={page?.galleryHeading?.title} />
               {page?.galleryCaption && (
-                <span lang="hi" className="hidden text-sm text-ink-soft sm:block">
+                <span lang={langOf(page.galleryCaption)} className="hidden text-sm text-ink-soft sm:block">
                   {page.galleryCaption}
                 </span>
               )}
@@ -119,13 +121,13 @@ export default async function EventsPage() {
           </div>
         )}
 
-        {/* Dignitaries / Guests (अतिथिगण) — standalone list, separate from
+        {/* Dignitaries / Guests — standalone list, separate from
             the per-event guests shown on each blog/detail page. */}
         {guests.length > 0 && (
           <div className="mt-14">
             <SectionHeading eyebrow={page?.guestsHeading?.eyebrow} title={page?.guestsHeading?.title} />
             {page?.guestsNote && (
-              <p lang="hi" className="mt-2 text-xs italic text-ink-soft">
+              <p lang={langOf(page.guestsNote)} className="mt-2 text-xs italic text-ink-soft">
                 {page.guestsNote}
               </p>
             )}

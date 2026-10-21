@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SectionHeading from "@/components/SectionHeading";
@@ -8,6 +7,7 @@ import EventPhotos from "@/components/EventPhotos";
 import RichText from "@/components/RichText";
 import { formatDate, getEventBySlug, getEvents, getGlobal } from "@/lib/cms";
 import { toGuestViews, toPhotoViews, a11yLabels } from "@/lib/site-data";
+import { langOf } from "@/lib/view-types";
 
 // Under Cache Components generateStaticParams must return at least one param
 // (an empty list is a build error). When the DB has no published events at
@@ -15,6 +15,11 @@ import { toGuestViews, toPhotoViews, a11yLabels } from "@/lib/site-data";
 // are validated to [a-z0-9-]) — it renders notFound(). Unlisted slugs are
 // rendered on first request and cached (ISR with Cache Components).
 const PLACEHOLDER_SLUG = "__placeholder__";
+
+// Unknown slugs must answer with a real HTTP 404 (not a 200 "soft 404"), so
+// the event is looked up before anything streams. Reading `params` outside
+// <Suspense> needs this opt-out from instant-navigation validation.
+export const instant = false;
 
 type Params = Promise<{ slug: string }>;
 
@@ -33,23 +38,15 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   };
 }
 
-// `params` is awaited inside <Suspense> so the route's App Shell can prerender
-// for slugs not known at build time (Partial Prefetching is enabled).
-export default function EventDetailPage({ params }: { params: Params }) {
-  return (
-    <Suspense fallback={<div className="min-h-[50vh]" aria-busy="true" />}>
-      <EventDetail params={params} />
-    </Suspense>
-  );
-}
-
-async function EventDetail({ params }: { params: Params }) {
+export default async function EventDetailPage({ params }: { params: Params }) {
   const { slug } = await params;
   const [event, ui] = await Promise.all([getEventBySlug(slug), getGlobal("ui-strings")]);
   if (!event) notFound();
 
   const labels = ui?.eventPage;
-  const fallbackAlt = event.titleHi;
+  // English first; Hindi only when the English field is empty.
+  const title = event.titleEn || event.titleHi;
+  const fallbackAlt = title;
   const gallery = toPhotoViews(event.photos, "hero", fallbackAlt);
   const photos = gallery.length > 0 ? gallery : toPhotoViews([event.coverImage], "hero", fallbackAlt);
   const guests = toGuestViews(event.guests);
@@ -63,7 +60,7 @@ async function EventDetail({ params }: { params: Params }) {
           {labels?.backLabel && (
             <Link
               href="/events"
-              lang="hi"
+              lang={langOf(labels.backLabel)}
               className="inline-flex items-center gap-1 text-sm font-medium text-sewablue-600 hover:underline"
             >
               <span aria-hidden>←</span> {labels.backLabel}
@@ -76,7 +73,7 @@ async function EventDetail({ params }: { params: Params }) {
               </span>
             )}
             {event.location && (
-              <span lang="hi" className="inline-flex items-center gap-1 rounded-full bg-saffron-100 px-3 py-1 text-saffron-800">
+              <span lang={langOf(event.location)} className="inline-flex items-center gap-1 rounded-full bg-saffron-100 px-3 py-1 text-saffron-800">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                   <path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z" />
                 </svg>
@@ -84,12 +81,9 @@ async function EventDetail({ params }: { params: Params }) {
               </span>
             )}
           </div>
-          <h1 lang="hi" className="mt-3 text-3xl font-bold leading-snug text-ink md:text-4xl">
-            {event.titleHi}
+          <h1 lang={langOf(title)} className="mt-3 text-3xl font-bold leading-snug text-ink md:text-4xl">
+            {title}
           </h1>
-          {event.titleEn && (
-            <p className="mt-1 text-base text-ink-soft">{event.titleEn}</p>
-          )}
         </div>
       </section>
 
@@ -101,7 +95,7 @@ async function EventDetail({ params }: { params: Params }) {
         <section className="mt-10">
           {labels?.descriptionHeading && (
             <>
-              <h2 lang="hi" className="text-xl font-bold text-ink">
+              <h2 lang={langOf(labels.descriptionHeading)} className="text-xl font-bold text-ink">
                 {labels.descriptionHeading}
               </h2>
               <span className="mt-3 block h-1 w-16 rounded-full bg-saffron-500" />
@@ -111,7 +105,7 @@ async function EventDetail({ params }: { params: Params }) {
             <RichText data={event.content} className="mt-5" />
           ) : (
             <div className="mt-5 space-y-4">
-              <p lang="hi" className="text-base leading-relaxed text-ink-soft">
+              <p lang={langOf(event.summaryHi)} className="text-base leading-relaxed text-ink-soft">
                 {event.summaryHi}
               </p>
             </div>
@@ -119,13 +113,13 @@ async function EventDetail({ params }: { params: Params }) {
         </section>
       </div>
 
-      {/* अतिथिगण — guests at this event */}
+      {/* Guests at this event */}
       {guests.length > 0 && (
         <section className="border-t border-saffron-100 bg-cream">
           <div className="container-page py-12">
             <SectionHeading eyebrow={labels?.guestsHeading?.eyebrow} title={labels?.guestsHeading?.title} />
             {labels?.guestsNote && (
-              <p lang="hi" className="mt-2 text-xs italic text-ink-soft">
+              <p lang={langOf(labels.guestsNote)} className="mt-2 text-xs italic text-ink-soft">
                 {labels.guestsNote}
               </p>
             )}

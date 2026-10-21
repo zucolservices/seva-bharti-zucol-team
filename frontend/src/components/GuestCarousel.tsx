@@ -1,12 +1,32 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { DEFAULT_A11Y, GUEST_PLACEHOLDER, fillN, type A11yLabels, type GuestView } from "@/lib/view-types";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { DEFAULT_A11Y, GUEST_PLACEHOLDER, fillN, langOf, type A11yLabels, type GuestView } from "@/lib/view-types";
 
-// अतिथिगण scroller — shows one guest at a time: photo, name, designation and
-// testimonial. Auto-advances every few seconds (pauses on hover) and can be
+// Guests scroller — shows one guest at a time: photo, name, designation and
+// testimonial. Auto-advances every few seconds (pauses on hover, has a
+// Pause/Play button, and stays still under prefers-reduced-motion) and can be
 // changed manually via the pill controls (and arrows on the compact variant).
+
+// The CMS a11y labels have no pause/play entries yet, so these are fixed.
+const PAUSE_LABEL = "Pause";
+const PLAY_LABEL = "Play";
+
+const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
+const subscribeReducedMotion = (onChange: () => void) => {
+  const mql = window.matchMedia(REDUCED_MOTION);
+  mql.addEventListener("change", onChange);
+  return () => mql.removeEventListener("change", onChange);
+};
+/** Live `prefers-reduced-motion: reduce` (false on the server). */
+const usePrefersReducedMotion = () =>
+  useSyncExternalStore(
+    subscribeReducedMotion,
+    () => window.matchMedia(REDUCED_MOTION).matches,
+    () => false,
+  );
+
 export default function GuestCarousel({
   guests,
   variant = "overlay",
@@ -19,16 +39,21 @@ export default function GuestCarousel({
   variant?: "overlay" | "split";
 }) {
   const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
+  // Hover pause (temporary) vs the Pause/Play button (sticks until toggled).
+  // Until the visitor chooses, reduced-motion users get no auto-advance.
+  const [hoverPaused, setHoverPaused] = useState(false);
+  const [userPlaying, setUserPlaying] = useState<boolean | null>(null);
+  const reducedMotion = usePrefersReducedMotion();
+  const playing = userPlaying ?? !reducedMotion;
 
   const count = guests.length;
   const go = (i: number) => setIndex(((i % count) + count) % count);
 
   useEffect(() => {
-    if (paused || count < 2) return;
+    if (!playing || hoverPaused || count < 2) return;
     const id = setInterval(() => setIndex((i) => (i + 1) % count), 5000);
     return () => clearInterval(id);
-  }, [paused, count]);
+  }, [playing, hoverPaused, count]);
 
   if (count === 0) return null;
   const guest = guests[index];
@@ -36,8 +61,8 @@ export default function GuestCarousel({
   return (
     <div
       className={`relative ${variant === "overlay" ? "w-full" : "mx-auto max-w-2xl"}`}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
+      onMouseEnter={() => setHoverPaused(true)}
+      onMouseLeave={() => setHoverPaused(false)}
     >
       {variant === "overlay" ? (
         <figure
@@ -57,14 +82,14 @@ export default function GuestCarousel({
 
           {/* Detail panel — right */}
           <figcaption className="relative flex flex-1 flex-col justify-center overflow-hidden rounded-2xl bg-saffron-100/70 p-8 md:p-10">
-            <span lang="hi" className="block text-2xl font-bold text-sewablue-800 md:text-3xl">
+            <span lang={langOf(guest.name)} className="block text-2xl font-bold text-sewablue-800 md:text-3xl">
               {guest.name}
             </span>
-            <span lang="hi" className="mt-2 block text-sm font-medium text-ink-soft md:text-base">
+            <span lang={langOf(guest.designation)} className="mt-2 block text-sm font-medium text-ink-soft md:text-base">
               {guest.designation}
             </span>
 
-            <blockquote lang="hi" className="relative mt-6 max-w-2xl pl-9 text-base leading-relaxed text-ink md:text-lg">
+            <blockquote lang={langOf(guest.testimonial)} className="relative mt-6 max-w-2xl pl-9 text-base leading-relaxed text-ink md:text-lg">
               <span aria-hidden className="absolute left-0 top-0 font-serif text-4xl leading-none text-saffron-400">
                 &ldquo;
               </span>
@@ -108,13 +133,13 @@ export default function GuestCarousel({
           <span className="mt-5 block h-1 w-14 rounded-full bg-saffron-500" />
 
           <figcaption className="mt-4">
-            <span lang="hi" className="block text-lg font-bold text-ink">
+            <span lang={langOf(guest.name)} className="block text-lg font-bold text-ink">
               {guest.name}
             </span>
-            <span lang="hi" className="mt-1 block text-sm font-medium text-sewablue-600">
+            <span lang={langOf(guest.designation)} className="mt-1 block text-sm font-medium text-sewablue-600">
               {guest.designation}
             </span>
-            <blockquote lang="hi" className="mt-3 text-sm leading-relaxed text-ink-soft">
+            <blockquote lang={langOf(guest.testimonial)} className="mt-3 text-sm leading-relaxed text-ink-soft">
               “{guest.testimonial}”
             </blockquote>
           </figcaption>
@@ -151,7 +176,7 @@ export default function GuestCarousel({
 
           {/* Pill controls */}
           <div
-            className={`mt-6 flex gap-2 ${
+            className={`mt-6 flex items-center gap-2 ${
               variant === "overlay" ? "justify-center md:justify-start md:pl-[calc(16rem+1.25rem)] lg:pl-[calc(18rem+1.25rem)]" : "justify-center"
             }`}
           >
@@ -167,6 +192,22 @@ export default function GuestCarousel({
                 }`}
               />
             ))}
+            {/* WCAG 2.2.2 pause control. Small circle to sit with the pills;
+                ::before widens the hit area to 44×44. */}
+            <button
+              type="button"
+              onClick={() => setUserPlaying(!playing)}
+              aria-label={playing ? PAUSE_LABEL : PLAY_LABEL}
+              className="relative ml-2 flex size-7 items-center justify-center rounded-full border border-saffron-200 bg-white text-sewablue-600 transition-colors before:absolute before:-inset-2 before:content-[''] hover:bg-saffron-50"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                {playing ? (
+                  <path d="M6 4h4v16H6zM14 4h4v16h-4z" />
+                ) : (
+                  <path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z" />
+                )}
+              </svg>
+            </button>
           </div>
         </>
       )}

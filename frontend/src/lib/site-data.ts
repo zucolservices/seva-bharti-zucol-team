@@ -17,15 +17,20 @@ export function a11yLabels(ui: UiString | null): A11yLabels {
   return out;
 }
 
+/** `tel:` link in international (E.164) form; Indian numbers get +91. */
 export function telHref(phone: string): string {
-  return `tel:${phone.replace(/[^0-9+]/g, "")}`;
+  const raw = phone.replace(/[^0-9+]/g, "");
+  if (raw.startsWith("+")) return `tel:${raw}`;
+  if (/^0\d{10}$/.test(raw)) return `tel:+91${raw.slice(1)}`; // 0141 2741222 (STD code)
+  if (/^[6-9]\d{9}$/.test(raw)) return `tel:+91${raw}`; // 10-digit mobile
+  return `tel:${raw}`;
 }
 
 export function siteLogo(settings: SiteSetting | null): { url: string; alt: string } {
   const name = settings?.name ?? "";
   return {
     url: mediaUrl(settings?.logo) ?? LOGO_FALLBACK,
-    alt: mediaAlt(settings?.logo, name ? `${name} logo` : ""),
+    alt: mediaAlt(settings?.logo, name ? `${name.trim()} logo` : "").trim(),
   };
 }
 
@@ -34,16 +39,32 @@ export function primaryPhone(settings: SiteSetting | null): string | null {
   return settings?.topBarPhone || settings?.offices?.[0]?.phones?.[0]?.number || null;
 }
 
-/** Header menu from src/content/navigation.ts; `{ pillars: true }` expands to the Pillars collection. */
+/** `${CMS_URL}/admin`, or null when CMS_URL is not set. */
+function cmsAdminUrl(): string | null {
+  const base = process.env.CMS_URL?.trim().replace(/\/+$/, "");
+  return base ? `${base}/admin` : null;
+}
+
+/**
+ * Header menu from src/content/navigation.ts. `{ pillars: true }` expands to
+ * the Pillars collection; `{ cmsAdmin: true }` becomes a link to the CMS admin
+ * (left out when CMS_URL is not set).
+ */
 export function buildNavItems(items: NavItemContent[], pillars: Pillar[]): NavItemView[] {
   const pillarLinks = pillars
     .filter((p) => p.showInNav !== false)
-    .map((p) => ({ label: byPillar(PILLAR_NAMES, p.slug)?.hi || p.navLabel || p.nameHi, href: `/${p.slug}` }));
+    .map((p) => ({ label: byPillar(PILLAR_NAMES, p.slug)?.title || p.navLabel || p.nameEn || p.nameHi, href: `/${p.slug}` }));
+  const adminUrl = cmsAdminUrl();
   return items.map((item, i) => ({
     id: `${item.label}-${i}`,
     label: item.label,
     href: item.href || null,
-    children: (item.children ?? []).flatMap((c) => ("pillars" in c ? pillarLinks : [c])),
+    utility: item.utility,
+    children: (item.children ?? []).flatMap((c) => {
+      if ("pillars" in c) return pillarLinks;
+      if ("cmsAdmin" in c) return adminUrl ? [{ label: c.label, href: adminUrl }] : [];
+      return [c];
+    }),
   }));
 }
 

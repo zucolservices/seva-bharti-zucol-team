@@ -16,6 +16,15 @@ const GLOBAL_SLUGS = [
   "contact-page",
   "events-page",
   "ui-strings",
+  "home-content",
+  "about-content",
+  "work-content",
+  "csr-content",
+  "volunteer-content",
+  "gallery-content",
+  "contact-content",
+  "partners-content",
+  "footer-content",
 ] as const;
 
 const ALLOWED_TAGS = new Set<string>([

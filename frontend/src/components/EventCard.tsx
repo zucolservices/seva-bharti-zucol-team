@@ -2,12 +2,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { formatDate, mediaAlt, mediaUrl } from "@/lib/cms";
 import type { Event } from "@/payload-types";
+import { langOf } from "@/lib/view-types";
 
 // Event summary card (cover photo, date, title, location, summary, "read more").
 // Same markup as the cards on the Events page.
 export default function EventCard({ event, readMore }: { event: Event; readMore?: string | null }) {
   const cover = mediaUrl(event.coverImage, "card");
   const date = formatDate(event.date);
+  const title = event.titleEn || event.titleHi;
 
   return (
     <Link
@@ -18,7 +20,7 @@ export default function EventCard({ event, readMore }: { event: Event; readMore?
         <div className="relative aspect-[16/10] overflow-hidden bg-saffron-50">
           <Image
             src={cover}
-            alt={mediaAlt(event.coverImage, event.titleHi)}
+            alt={mediaAlt(event.coverImage, title)}
             fill
             sizes="(max-width: 768px) 100vw, 33vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -31,8 +33,8 @@ export default function EventCard({ event, readMore }: { event: Event; readMore?
         </div>
       )}
       <div className="flex flex-1 flex-col p-5">
-        <h3 lang="hi" className="text-lg font-bold leading-snug text-ink">
-          {event.titleHi}
+        <h3 lang={langOf(title)} className="text-lg font-bold leading-snug text-ink">
+          {title}
         </h3>
         {event.location && (
           <p className="mt-2 inline-flex w-fit items-center gap-1 rounded-full bg-saffron-50 px-3 py-1 text-xs font-medium text-saffron-700">
@@ -42,11 +44,11 @@ export default function EventCard({ event, readMore }: { event: Event; readMore?
             {event.location}
           </p>
         )}
-        <p lang="hi" className="mt-3 flex-1 text-sm leading-relaxed text-ink-soft">
+        <p lang={langOf(event.summaryHi)} className="mt-3 flex-1 text-sm leading-relaxed text-ink-soft">
           {event.summaryHi}
         </p>
         {readMore && (
-          <span lang="hi" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-sewablue-600">
+          <span lang={langOf(readMore)} className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-sewablue-600">
             {readMore}
             <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
           </span>

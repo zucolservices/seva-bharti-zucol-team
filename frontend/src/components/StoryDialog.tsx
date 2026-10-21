@@ -1,8 +1,9 @@
 "use client";
 
 import { useRef, type ReactNode } from "react";
+import { langOf } from "@/lib/view-types";
 
-// "पूरा पढ़ें" button that opens the full story in a modal (native <dialog>:
+// "Read the full story" button that opens the full story in a modal (native <dialog>:
 // Esc closes, focus is trapped, page behind is inert). Clicking the dark
 // backdrop also closes it.
 export default function StoryDialog({
@@ -21,8 +22,8 @@ export default function StoryDialog({
       <button
         type="button"
         onClick={() => ref.current?.showModal()}
-        lang="hi"
-        className="mt-6 inline-flex items-center gap-2 rounded-lg bg-saffron-500 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-saffron-600"
+        lang={langOf(label)}
+        className="mt-6 inline-flex items-center gap-2 rounded-lg bg-saffron-500 px-6 py-3 text-sm font-semibold text-ink shadow-sm transition-colors hover:bg-saffron-600"
       >
         {label}
         <span aria-hidden>→</span>
@@ -40,7 +41,7 @@ export default function StoryDialog({
           <button
             type="button"
             onClick={() => ref.current?.close()}
-            aria-label="बंद करें"
+            aria-label="Close"
             className="sticky top-0 float-right -mr-2 -mt-2 rounded-full bg-white p-2 text-ink-soft shadow-sm ring-1 ring-saffron-100 transition-colors hover:text-ink"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">

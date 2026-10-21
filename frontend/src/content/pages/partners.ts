@@ -1,57 +1,54 @@
 // "Our Sewa Partners" copy from the client's content document (section 9),
-// translated into Hindi. Logos are the brands' official SVGs (Wikimedia),
-// stored in public/partners/; a partner without `logo` shows a name card.
+// verbatim. Logos are the organisations' official files (sources in
+// context/2.0/CONTENT_GAPS.md), stored in public/partners/; a partner without
+// `logo` shows its name as text until a logo file is supplied.
 
 export type Partner = {
-  /** Hindi name, shown first. */
+  /** Name as in the content document; also the logo's alt text. */
   name: string;
-  /** Usual English / brand name, shown small below; also the logo's alt text. */
-  nameEn: string;
   /** Path under public/, e.g. "/partners/sbi.svg". */
   logo?: string;
+  /** Round/square emblem — shown taller so it reads at the same weight as wide wordmarks. */
+  emblem?: boolean;
 };
 
 export const PARTNERS_META = {
-  title: "हमारे सेवा सहयोगी",
+  title: "Our Sewa Partners",
   description:
-    "सेवा भारती समिति राजस्थान के संस्थागत एवं कॉर्पोरेट सहयोगी, जो सेवा के चक्र को सुदृढ़ करने में हमारे साथ खड़े हैं।",
+    "The journey from providing grassroots relief to building a self-reliant society is not one we walk alone.",
 };
 
 export const PARTNERS_HEADER = {
-  eyebrow: "हमारे सेवा सहयोगी",
-  title: "सेवा के चक्र को सुदृढ़ करना",
+  eyebrow: "Our Sewa Partners",
+  title: "Strengthening the Circle of Service",
 };
 
 export const PARTNERS_NOTE = {
-  heading: "हमारे सहयोगियों के नाम एक संदेश",
+  heading: "A Note to Our Partners",
   paragraphs: [
-    "ज़मीनी स्तर पर राहत पहुँचाने से लेकर एक आत्मनिर्भर समाज के निर्माण तक की यह यात्रा हम अकेले तय नहीं करते। सेवा भारती समिति राजस्थान में ‘साथ मिलकर हम कर सकते हैं’ की हमारी परिकल्पना हमारे सम्मानित संस्थागत एवं कॉर्पोरेट सहयोगियों के अटूट समर्थन और साझा दृष्टि से ही साकार होती है।",
-    "चाहे उन्नत चिकित्सा अवसंरचना के लिए वित्तीय सहयोग हो, शैक्षिक छात्रवृत्तियों का समर्थन हो, या हमारे कौशल विकास केंद्रों का विस्तार — कॉर्पोरेट सामाजिक उत्तरदायित्व (CSR) और जनकल्याण के प्रति आपकी प्रतिबद्धता ही वह शक्ति है जो हमारे मिशन को आगे बढ़ाती है। आप केवल परियोजनाओं को वित्तीय सहायता नहीं दे रहे; आप सशक्तिकरण के चक्र में निवेश कर रहे हैं। आपके अमूल्य योगदान के कारण, जिन व्यक्तियों और समुदायों का हम आज उत्थान करते हैं, वे कल के सक्षम और आत्मनिर्भर दाता बन रहे हैं।",
-    "राष्ट्र सेवा में कंधे से कंधा मिलाकर हमारे साथ खड़ी दूरदर्शी संस्थाओं के प्रति हम हृदय से आभार व्यक्त करते हैं:",
+    "The journey from providing grassroots relief to building a self-reliant society is not one we walk alone. At Sewa Bharti Samiti Rajasthan, our vision of “Together We Can” is brought to life through the unwavering support and shared vision of our esteemed institutional and corporate partners.",
+    "Whether it is funding advanced medical infrastructure, supporting educational scholarships, or expanding our skill development centers, your commitment to Corporate Social Responsibility (CSR) and public welfare is the engine that drives our mission forward. You are not just funding projects; you are investing in the cycle of empowerment. Thanks to your vital contributions, the individuals and communities we uplift today are being shaped into the capable, self-reliant benefactors of tomorrow.",
+    "We extend our deepest gratitude to the visionary organizations that stand shoulder-to-shoulder with us in national service:",
   ],
 };
 
+export const PARTNERS_GRID_LABEL = "Partner organizations";
+
 export const PARTNERS: Partner[] = [
-  { name: "भारतीय स्टेट बैंक", nameEn: "State Bank of India (SBI)", logo: "/partners/sbi.svg" },
-  { name: "राजस्थान सरकार", nameEn: "Government of Rajasthan" },
-  { name: "शिक्षा विभाग, राजस्थान", nameEn: "Department of Education, Rajasthan" },
-  { name: "महिंद्रा वर्ल्ड सिटी", nameEn: "Mahindra World City" },
-  { name: "तापड़िया समूह", nameEn: "Taparia Group" },
-  { name: "गंगानगर शुगर मिल्स प्रा. लि.", nameEn: "Ganganagar Sugar Mills Pvt. Ltd." },
-  { name: "वंडर सीमेंट", nameEn: "Wonder Cement", logo: "/partners/wonder-cement.svg" },
-  { name: "एनटीपीसी लिमिटेड", nameEn: "NTPC Limited", logo: "/partners/ntpc.svg" },
-  {
-    name: "इंडियन ऑयल कॉर्पोरेशन लिमिटेड",
-    nameEn: "Indian Oil Corporation Limited (IOCL)",
-    logo: "/partners/iocl.svg",
-  },
+  { name: "State Bank of India (SBI)", logo: "/partners/sbi.svg" },
+  { name: "Government of Rajasthan", logo: "/partners/govt-rajasthan.png" },
+  { name: "Department of Education, Rajasthan", logo: "/partners/rajasthan-education-department.png", emblem: true },
+  { name: "Mahindra World City", logo: "/partners/mahindra-world-city.png" },
+  { name: "Taparia Group", logo: "/partners/taparia.png" },
+  { name: "Ganganagar Sugar Mills Pvt. Ltd.", logo: "/partners/rsgsm.png", emblem: true },
+  { name: "Wonder Cement", logo: "/partners/wonder-cement.svg" },
+  { name: "NTPC Limited", logo: "/partners/ntpc.svg" },
+  { name: "Indian Oil Corporation Limited (IOCL)", logo: "/partners/iocl.svg" },
 ];
 
-export const PARTNERS_MORE = "...और भी अनेक समर्पित सहयोगी";
-
 export const PARTNERS_CTA = {
-  heading: "परिवर्तन के लिए हमारे गठबंधन से जुड़ें",
-  text: "क्या आपकी संस्था ज़मीनी स्तर पर स्थायी और दीर्घकालिक प्रभाव उत्पन्न करना चाहती है? एक आत्मनिर्भर राजस्थान के निर्माण के लिए हमारे साथ साझेदारी करें।",
-  button: "हमारी CSR टीम से संपर्क करें",
+  heading: "Join Our Alliance for Change",
+  text: "Is your organization looking to create a lasting, sustainable impact at the grassroots level? Partner with us to build a self-reliant Rajasthan.",
+  button: "Contact Our CSR Team Today",
   href: "/contact",
 };

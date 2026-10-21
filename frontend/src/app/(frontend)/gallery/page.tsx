@@ -4,24 +4,29 @@ import PageHeader from "@/components/PageHeader";
 import SectionHeading from "@/components/SectionHeading";
 import EventCard from "@/components/EventCard";
 import EventPhotos from "@/components/EventPhotos";
-import { getEvents, getGlobal } from "@/lib/cms";
+import { getContent, getEvents, getGlobal } from "@/lib/cms";
 import { a11yLabels, toPhotoViews } from "@/lib/site-data";
-import {
-  GALLERY_ALL_EVENTS,
-  GALLERY_HEADER,
-  GALLERY_PHOTO_ALT,
-  GALLERY_PHOTOS_HEADING,
-  GALLERY_RECENT_HEADING,
-} from "@/content/pages/gallery";
+import { resolveGallery } from "@/content/resolve";
 
-export const metadata: Metadata = {
-  title: GALLERY_HEADER.eyebrow,
-  description: GALLERY_HEADER.subtitle,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { header } = resolveGallery(await getContent("gallery-content"));
+  return { title: header.eyebrow, description: header.subtitle };
+}
 
 export default async function GalleryPage() {
   // Same CMS sources as the Events page: its gallery photos and the events list.
-  const [page, events, ui] = await Promise.all([getGlobal("events-page"), getEvents(), getGlobal("ui-strings")]);
+  const [page, events, ui, galleryContent] = await Promise.all([
+    getGlobal("events-page"),
+    getEvents(),
+    getGlobal("ui-strings"),
+    getContent("gallery-content"),
+  ]);
+  const {
+    header: GALLERY_HEADER,
+    photoAlt: GALLERY_PHOTO_ALT,
+    recentHeading: GALLERY_RECENT_HEADING,
+    allEvents: GALLERY_ALL_EVENTS,
+  } = resolveGallery(galleryContent);
   const photos = toPhotoViews(page?.gallery, "hero", GALLERY_PHOTO_ALT);
   const recent = events.slice(0, 6);
   const readMore = page?.readMoreLabel;
@@ -33,10 +38,7 @@ export default async function GalleryPage() {
       <div className="container-page py-12">
         {photos.length > 0 && (
           <section>
-            <SectionHeading title={GALLERY_PHOTOS_HEADING} />
-            <div className="mt-6">
-              <EventPhotos photos={photos} a11y={a11yLabels(ui)} />
-            </div>
+            <EventPhotos photos={photos} a11y={a11yLabels(ui)} />
           </section>
         )}
 
@@ -50,7 +52,6 @@ export default async function GalleryPage() {
             </div>
             <div className="mt-8">
               <Link
-                lang="hi"
                 href={GALLERY_ALL_EVENTS.href}
                 className="group inline-flex items-center gap-1 font-semibold text-sewablue-600 hover:text-sewablue-700"
               >

@@ -2,11 +2,16 @@
 // Registration numbers are the verified facts in PROJECT_NOTES.md; social
 // links are the ones on the live site.
 
-export const FOOTER_MOTTO = "साथ मिलकर हम कर सकते हैं: आज का सशक्तिकरण, कल की प्रेरणा।";
+export const FOOTER_COPYRIGHT = "© Sewa Bharti Samiti Rajasthan.";
+
+/** Column headings (English; the CMS still holds the old Hindi ones). */
+export const FOOTER_HEADINGS = { quickLinks: "Quick Links", contact: "Contact Us" };
+
+export const FOOTER_MOTTO = "Together We Can: Empowering Today, Inspiring Tomorrow.";
 
 export const FOOTER_COMPLIANCE: { label: string; value: string }[] = [
-  { label: "पंजीयन", value: "106/राजस्थान 1987-88" },
-  { label: "80G कर छूट", value: "80जी/831/2007-2008" },
+  { label: "Registration", value: "106/Rajasthan 1987-88" },
+  { label: "80G Tax Exemption", value: "80G/831/2007-2008" },
   { label: "PAN", value: "AABTS4114N" },
 ];
 
