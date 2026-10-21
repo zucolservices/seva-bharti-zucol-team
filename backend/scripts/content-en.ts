@@ -34,9 +34,6 @@ const SAMPLE_NOTE = /नमूना प्रविष्टियाँ|^sampl
 const SKIP_KEYS = new Set(["id", "createdAt", "updatedAt", "globalType", "_status"]);
 
 // Seed sample data, used to recognise what to delete.
-const sampleStoryNames = new Set(
-  seedPillars.flatMap((p) => p.successStories.flatMap((s) => [s.nameHi, s.nameEn])),
-);
 const sampleStatLabels = new Set(seedPillars.flatMap((p) => p.stats.map((s) => s.labelHi)));
 const sampleGuestNames = new Set([
   ...seedEvents.flatMap((e) => (e.guests ?? []).map((g) => g.name)),
@@ -215,9 +212,7 @@ for (const doc of pillarDocs.docs) {
   removeRows(work, "aayaam", "pillars.aayaam (filler tiles)", (a) =>
     FILLER_AAYAAM.test(String(a.titleHi ?? "").trim()) || FILLER_AAYAAM.test(String(a.titleEn ?? "").trim()),
   );
-  removeRows(work, "successStories", "pillars.successStories (sample)", (s) =>
-    sampleStoryNames.has(String(s.nameHi)) || sampleStoryNames.has(String(s.nameEn)),
-  );
+  // Success stories are kept (restored on request, see restore-success-stories.ts).
   removeRows(work, "stats", "pillars.stats (sample)", (s) => sampleStatLabels.has(String(s.labelHi)));
 
   fillPair(work, "nameHi", "nameEn", label, { stripColon: true, notEnglish: transliteratedPillarNames });
