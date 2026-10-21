@@ -38,3 +38,14 @@ export const PILLAR_NAMES: Record<PillarKey, PillarName> = {
   swavalamban: { title: "Self-Reliance", badge: "Swavalamban" },
   samajik: { title: "Social Harmony", badge: "Samajik Samarasata" },
 };
+
+/**
+ * Name shown for a pillar: the CMS name (Pillars → Name, edited by the team)
+ * wins; the built-in English name is only a fallback. The badge stays the
+ * transliterated name ("Shiksha"), which the CMS has no field for.
+ */
+export function pillarNames(p: { slug: string; nameEn?: string | null; nameHi?: string | null }): PillarName {
+  const fallback = byPillar(PILLAR_NAMES, p.slug);
+  const cms = p.nameEn?.trim() || p.nameHi?.trim();
+  return { title: cms || fallback?.title || p.slug, badge: fallback?.badge ?? cms ?? p.slug };
+}

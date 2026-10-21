@@ -4,7 +4,7 @@ import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
 import { getContent, getPillars, mediaAlt, mediaUrl } from "@/lib/cms";
 import { resolveWork } from "@/content/resolve";
-import { PILLAR_NAMES, byPillar } from "@/content/pillars";
+import { byPillar, pillarNames } from "@/content/pillars";
 import { langOf } from "@/lib/view-types";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -25,7 +25,7 @@ export default async function OurWorkPage() {
       <div className="container-page space-y-8 py-12">
         {pillars.map((p, i) => {
           const copy = byPillar(WORK_PILLARS, p.slug);
-          const names = byPillar(PILLAR_NAMES, p.slug);
+          const names = pillarNames(p);
           const banner = mediaUrl(p.banner, "card");
           const isBlue = p.accent === "blue";
           return (

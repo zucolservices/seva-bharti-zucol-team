@@ -27,9 +27,10 @@ export default async function ContactPage() {
   return (
     <>
       <PageHeader
-        title={CONTACT_HEADER.title}
-        eyebrow={CONTACT_HEADER.eyebrow}
-        subtitle={CONTACT_HEADER.subtitle}
+        // Team's CMS header (Contact Page → Header) wins; content-document text is the fallback.
+        title={contact?.header?.title?.trim() || CONTACT_HEADER.title}
+        eyebrow={contact?.header?.eyebrow?.trim() || CONTACT_HEADER.eyebrow}
+        subtitle={contact?.header?.subtitle?.trim() || CONTACT_HEADER.subtitle}
       />
 
       <div className="container-page py-12">

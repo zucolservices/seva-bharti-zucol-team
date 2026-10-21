@@ -11,7 +11,7 @@ import QuoteCarousel from "@/components/QuoteCarousel";
 import { DEFAULT_FEATURED_STORY } from "@/content/featured-story-default";
 import { HOME_EVENTS_TEASER_OVERRIDES, overrideSeedText } from "@/content/pages/home";
 import { resolveHome } from "@/content/resolve";
-import { PILLAR_NAMES, byPillar } from "@/content/pillars";
+import { byPillar, pillarNames } from "@/content/pillars";
 import PillarCard from "@/components/PillarCard";
 import StatCounter from "@/components/StatCounter";
 import SectionHeading from "@/components/SectionHeading";
@@ -40,6 +40,8 @@ export default async function HomePage() {
   const content = resolveHome(homeContent);
 
   const hero = home?.hero;
+  const heroTitle = hero?.title?.trim() || content.hero.title;
+  const heroIntro = hero?.intro?.trim() || content.hero.intro;
   const logo = siteLogo(settings);
   const heroImage = mediaUrl(hero?.image) ?? logo.url; // original size; next/image resizes
   const heroAlt = hero?.image ? mediaAlt(hero.image, logo.alt) : logo.alt;
@@ -87,12 +89,12 @@ export default async function HomePage() {
                 {hero.tagline}
               </p>
             )}
-            {/* Title and intro from the client content document (src/content/pages/home.ts, overridable by the Home Content global). */}
-            <h1 className="mt-3 text-4xl font-bold leading-[1.1] tracking-tight text-ink md:text-[2.75rem] xl:text-[3.25rem]">
-              {content.hero.title}
+            {/* Team's CMS text (Home Page → Hero) wins; Home Content / built-in text is the fallback. */}
+            <h1 lang={langOf(heroTitle)} className="mt-3 text-4xl font-bold leading-[1.1] tracking-tight text-ink md:text-[2.75rem] xl:text-[3.25rem]">
+              {heroTitle}
             </h1>
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-ink-soft md:text-lg">
-              {content.hero.intro}
+            <p lang={langOf(heroIntro)} className="mt-5 max-w-xl text-base leading-relaxed text-ink-soft md:text-lg">
+              {heroIntro}
             </p>
             {((primary?.label && primary.href) || (secondary?.label && secondary.href)) && (
               <div className="mt-8 flex flex-wrap gap-4">
@@ -189,7 +191,8 @@ export default async function HomePage() {
         <section className="container-page py-14">
           <div className="mb-8 flex justify-center">
             <SectionHeading
-              title={content.pillarsHeading.title}
+              eyebrow={home?.pillarsHeading?.eyebrow}
+              title={home?.pillarsHeading?.title?.trim() || content.pillarsHeading.title}
               align="center"
             />
           </div>
@@ -198,7 +201,7 @@ export default async function HomePage() {
               <PillarCard
                 key={p.id}
                 pillar={p}
-                names={byPillar(PILLAR_NAMES, p.slug)}
+                names={pillarNames(p)}
                 summary={byPillar(content.pillarLines, p.slug)}
                 ctaLabel={ui?.pillarCardCta}
               />

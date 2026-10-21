@@ -27,32 +27,14 @@ export const HOME_PILLAR_LINES: Record<PillarKey, string> = {
 };
 
 /**
- * Events teaser: while the CMS still holds the original seed wording (Hindi,
- * or a literal English translation of it), these document lines are shown
- * instead. Any other text set in the CMS (Home Page → Events Teaser) is shown
- * as-is. The `cms` values are the seed texts to match (compared trimmed and
- * case-insensitively), so the Hindi ones stay in Hindi.
+ * Events teaser: the original Hindi seed wording is swapped for English; any
+ * other text set in the CMS (Home Page → Events Teaser) is shown as-is.
  */
 export const HOME_EVENTS_TEASER_OVERRIDES = {
-  title: {
-    cms: ["सेवा गतिविधियाँ", "कुछ सेवा गतिविधियाँ", "Seva Activities", "Service Activities", "Some Service Activities"],
-    text: "Sewa Activities",
-  },
-  cta: {
-    cms: [
-      "कार्यक्रम देखें",
-      "बाकी सभी सेवा गतिविधियाँ यहाँ देखें",
-      "View Programmes",
-      "View Programs",
-      "View Events",
-      "See all other service activities here",
-      "View all other service activities here",
-    ],
-    text: "View All Sewa Activities",
-  },
+  title: { cms: ["सेवा गतिविधियाँ", "कुछ सेवा गतिविधियाँ"], text: "Sewa Activities" },
+  cta: { cms: ["कार्यक्रम देखें", "बाकी सभी सेवा गतिविधियाँ यहाँ देखें"], text: "View All Sewa Activities" },
 };
 
-/** The override text when `value` is one of the seed texts, else `value` unchanged. */
 export function overrideSeedText(
   value: string | null | undefined,
   override: { cms: readonly string[]; text: string },

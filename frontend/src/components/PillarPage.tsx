@@ -5,7 +5,7 @@ import RichText from "@/components/RichText";
 import { mediaAlt, mediaUrl } from "@/lib/cms";
 import type { Pillar, UiString } from "@/payload-types";
 import { WORK_PILLARS as DEFAULT_WORK_PILLARS } from "@/content/pages/work";
-import { PILLAR_NAMES, byPillar } from "@/content/pillars";
+import { byPillar, pillarNames } from "@/content/pillars";
 import { langOf } from "@/lib/view-types";
 
 // Accent-aware class sets so each pillar can lean saffron or blue.
@@ -55,7 +55,7 @@ export default function PillarPage({
   const aayaam = pillar.aayaam ?? [];
   const intro = byPillar(workPillars, pillar.slug);
   // Document names ("Education", badge "Shiksha"); CMS names only as a fallback.
-  const names = byPillar(PILLAR_NAMES, pillar.slug);
+  const names = pillarNames(pillar);
   // English first; Hindi only when the English field is empty.
   const title = names ? names.title : pillar.nameEn || pillar.nameHi;
   const summary = pillar.summaryEn || pillar.summaryHi;
@@ -78,7 +78,7 @@ export default function PillarPage({
         <div className="container-page absolute inset-x-0 bottom-0">
           <div className="pb-8 md:pb-10">
             <p className="inline-block rounded bg-saffron-500 px-2.5 py-1 text-xs font-bold uppercase tracking-[0.15em] text-ink">
-              {names ? names.badge : labels?.bannerPrefix ? `${labels.bannerPrefix} · ${pillar.nameEn}` : pillar.nameEn}
+              {labels?.bannerPrefix?.trim() ? `${labels.bannerPrefix.trim()} · ${names?.title ?? pillar.nameEn}` : names?.badge ?? pillar.nameEn}
             </p>
             <h1
               lang={langOf(title)}

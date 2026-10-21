@@ -12,7 +12,7 @@ export default function PillarCard({
   pillar: Pillar;
   /** Overrides the CMS names (English title + transliterated badge). */
   names?: PillarName;
-  /** Overrides the CMS summary (e.g. the home-page one-liners). */
+  /** Fallback line when the CMS pillar has no summary (home-page one-liners). */
   summary?: string;
   ctaLabel?: string | null;
 }) {
@@ -21,7 +21,8 @@ export default function PillarCard({
   const badge = isBlue ? "bg-sewablue-50 text-sewablue-700" : "bg-saffron-50 text-saffron-700";
   const cta = isBlue ? "text-sewablue-600" : "text-saffron-700";
   const title = names?.title ?? (pillar.nameEn || pillar.nameHi);
-  const text = summary ?? (pillar.summaryEn || pillar.summaryHi);
+  // The team's CMS summary (Pillars → Summary) wins; `summary` is the fallback.
+  const text = pillar.summaryEn?.trim() || pillar.summaryHi?.trim() || summary;
 
   return (
     <Link

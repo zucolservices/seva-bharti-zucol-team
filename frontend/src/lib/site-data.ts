@@ -1,7 +1,7 @@
 import "server-only";
 import type { Pillar, SiteSetting, UiString } from "@/payload-types";
 import type { NavItemContent } from "@/content/navigation";
-import { PILLAR_NAMES, byPillar } from "@/content/pillars";
+import { pillarNames } from "@/content/pillars";
 import { mediaAlt, mediaUrl, type MediaRef } from "@/lib/cms";
 import { DEFAULT_A11Y, LOGO_FALLBACK, type A11yLabels, type GuestView, type NavItemView, type PhotoView } from "@/lib/view-types";
 
@@ -53,7 +53,7 @@ function cmsAdminUrl(): string | null {
 export function buildNavItems(items: NavItemContent[], pillars: Pillar[]): NavItemView[] {
   const pillarLinks = pillars
     .filter((p) => p.showInNav !== false)
-    .map((p) => ({ label: byPillar(PILLAR_NAMES, p.slug)?.title || p.navLabel || p.nameEn || p.nameHi, href: `/${p.slug}` }));
+    .map((p) => ({ label: p.navLabel?.trim() || pillarNames(p).title, href: `/${p.slug}` }));
   const adminUrl = cmsAdminUrl();
   return items.map((item, i) => ({
     id: `${item.label}-${i}`,

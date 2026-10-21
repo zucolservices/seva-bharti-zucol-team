@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import PillarPage from "@/components/PillarPage";
 import { getContent, getGlobal, getPillarBySlug, getPillars } from "@/lib/cms";
-import { PILLAR_NAMES, byPillar } from "@/content/pillars";
+import { pillarNames } from "@/content/pillars";
 import { resolveWork } from "@/content/resolve";
 
 // One page per pillar document, at /<slug>. Static siblings (about-us,
@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { slug } = await params;
   const pillar = await getPillarBySlug(slug);
   if (!pillar) return {};
-  const names = byPillar(PILLAR_NAMES, pillar.slug);
+  const names = pillarNames(pillar);
   return {
     title: pillar.seo?.metaTitle || (names ? `${names.title} (${names.badge})` : pillar.nameEn),
     description: pillar.seo?.metaDescription || pillar.summaryEn || pillar.summaryHi,

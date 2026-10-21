@@ -3,7 +3,7 @@ import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
 import RichText from "@/components/RichText";
 import { getContent, getGlobal, getPillars } from "@/lib/cms";
-import { PILLAR_NAMES, byPillar } from "@/content/pillars";
+import { pillarNames } from "@/content/pillars";
 import { langOf } from "@/lib/view-types";
 import type { AboutPage as AboutPageData } from "@/payload-types";
 import { resolveAbout } from "@/content/resolve";
@@ -85,8 +85,12 @@ export default async function AboutPage() {
 
   return (
     <>
-      {/* Header text exactly as in the content document (no CMS subtitle). */}
-      <PageHeader title={ABOUT_HEADER.title} eyebrow={ABOUT_HEADER.eyebrow} />
+      {/* Team's CMS header (About Page → Header) wins; content-document text is the fallback. */}
+      <PageHeader
+        title={about?.header?.title?.trim() || ABOUT_HEADER.title}
+        eyebrow={about?.header?.eyebrow?.trim() || ABOUT_HEADER.eyebrow}
+        subtitle={about?.header?.subtitle}
+      />
 
       <div className="container-page grid gap-10 py-12 lg:grid-cols-[1.6fr_1fr]">
         <div className="space-y-10">
@@ -129,7 +133,7 @@ export default async function AboutPage() {
               )}
               <ul className="mt-3 grid gap-2 sm:grid-cols-2">
                 {pillars.map((p) => {
-                  const names = byPillar(PILLAR_NAMES, p.slug);
+                  const names = pillarNames(p);
                   // English first; Hindi only when the English name is empty.
                   const title = names?.title ?? (p.nameEn || p.nameHi);
                   const badge = names?.badge ?? (p.nameEn && p.nameEn !== title ? p.nameEn : null);
