@@ -64,6 +64,7 @@ export type SupportedTimezones =
 export interface Config {
   auth: {
     users: UserAuthOperations;
+    'portal-users': PortalUserAuthOperations;
   };
   blocks: {};
   collections: {
@@ -71,6 +72,7 @@ export interface Config {
     events: Event;
     media: Media;
     users: User;
+    'portal-users': PortalUser;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -82,6 +84,7 @@ export interface Config {
     events: EventsSelect<false> | EventsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    'portal-users': PortalUsersSelect<false> | PortalUsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -99,6 +102,15 @@ export interface Config {
     'contact-page': ContactPage;
     'events-page': EventsPage;
     'ui-strings': UiString;
+    'home-content': HomeContent;
+    'about-content': AboutContent;
+    'work-content': WorkContent;
+    'csr-content': CsrContent;
+    'volunteer-content': VolunteerContent;
+    'gallery-content': GalleryContent;
+    'contact-content': ContactContent;
+    'partners-content': PartnersContent;
+    'footer-content': FooterContent;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
@@ -108,18 +120,45 @@ export interface Config {
     'contact-page': ContactPageSelect<false> | ContactPageSelect<true>;
     'events-page': EventsPageSelect<false> | EventsPageSelect<true>;
     'ui-strings': UiStringsSelect<false> | UiStringsSelect<true>;
+    'home-content': HomeContentSelect<false> | HomeContentSelect<true>;
+    'about-content': AboutContentSelect<false> | AboutContentSelect<true>;
+    'work-content': WorkContentSelect<false> | WorkContentSelect<true>;
+    'csr-content': CsrContentSelect<false> | CsrContentSelect<true>;
+    'volunteer-content': VolunteerContentSelect<false> | VolunteerContentSelect<true>;
+    'gallery-content': GalleryContentSelect<false> | GalleryContentSelect<true>;
+    'contact-content': ContactContentSelect<false> | ContactContentSelect<true>;
+    'partners-content': PartnersContentSelect<false> | PartnersContentSelect<true>;
+    'footer-content': FooterContentSelect<false> | FooterContentSelect<true>;
   };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
   };
-  user: User;
+  user: User | PortalUser;
   jobs: {
     tasks: unknown;
     workflows: unknown;
   };
 }
 export interface UserAuthOperations {
+  forgotPassword: {
+    email: string;
+    password: string;
+  };
+  login: {
+    email: string;
+    password: string;
+  };
+  registerFirstUser: {
+    email: string;
+    password: string;
+  };
+  unlock: {
+    email: string;
+    password: string;
+  };
+}
+export interface PortalUserAuthOperations {
   forgotPassword: {
     email: string;
     password: string;
@@ -357,6 +396,37 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "portal-users".
+ */
+export interface PortalUser {
+  id: number;
+  name?: string | null;
+  /**
+   * Which portal this account can sign in to.
+   */
+  portal: 'pathology' | 'publication';
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'portal-users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -394,12 +464,21 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'users';
         value: number | User;
+      } | null)
+    | ({
+        relationTo: 'portal-users';
+        value: number | PortalUser;
       } | null);
   globalSlug?: string | null;
-  user: {
-    relationTo: 'users';
-    value: number | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: number | User;
+      }
+    | {
+        relationTo: 'portal-users';
+        value: number | PortalUser;
+      };
   updatedAt: string;
   createdAt: string;
 }
@@ -409,10 +488,15 @@ export interface PayloadLockedDocument {
  */
 export interface PayloadPreference {
   id: number;
-  user: {
-    relationTo: 'users';
-    value: number | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: number | User;
+      }
+    | {
+        relationTo: 'portal-users';
+        value: number | PortalUser;
+      };
   key?: string | null;
   value?:
     | {
@@ -608,6 +692,31 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "portal-users_select".
+ */
+export interface PortalUsersSelect<T extends boolean = true> {
+  name?: T;
+  portal?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  resetPasswordRequestedAt?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -775,7 +884,7 @@ export interface HomePage {
     title: string;
     intro?: string | null;
     /**
-     * Falls back to the site logo.
+     * Large picture on the right of the home-page hero. Recommended: 1280 × 880 px (landscape, about 3:2), PNG or WebP, under 1.5 MB. Soft, faded edges blend best into the page background. It is shown up to about 1000 px wide on large screens. Falls back to the site logo when empty.
      */
     image?: (number | null) | Media;
     primaryCta?: {
@@ -860,6 +969,10 @@ export interface HomePage {
      * e.g. https://www.youtube.com/watch?v=zJgM7UGn8JI
      */
     videoUrl?: string | null;
+    /**
+     * Picture shown instead of the video; visitors click it to play the video. Recommended: 1280 × 720 px (16:9 landscape), JPG, PNG or WebP, under 500 KB. Leave empty to use the video's own YouTube thumbnail.
+     */
+    videoThumbnail?: (number | null) | Media;
     /**
      * Short description of the video (for screen readers)
      */
@@ -1078,6 +1191,728 @@ export interface UiString {
   createdAt?: string | null;
 }
 /**
+ * Text blocks of the home page (the static sections).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-content".
+ */
+export interface HomeContent {
+  id: number;
+  hero?: {
+    /**
+     * Leave empty to use the default text.
+     */
+    title?: string | null;
+    /**
+     * Leave empty to use the default text.
+     */
+    intro?: string | null;
+  };
+  impact?: {
+    /**
+     * Bold first line. Leave empty to use the default text.
+     */
+    lead?: string | null;
+    /**
+     * Leave empty to use the default text.
+     */
+    text?: string | null;
+  };
+  pillarsHeading?: {
+    /**
+     * Leave empty to use the default text.
+     */
+    title?: string | null;
+  };
+  pillarLines?: {
+    /**
+     * One-line text on the Shiksha (Education) card. Leave empty to use the default text.
+     */
+    shiksha?: string | null;
+    /**
+     * One-line text on the Swasthya (Healthcare) card. Leave empty to use the default text.
+     */
+    swasthya?: string | null;
+    /**
+     * One-line text on the Swavalamban (Self-Reliance) card. Leave empty to use the default text.
+     */
+    swavalamban?: string | null;
+    /**
+     * One-line text on the Samajik (Social Harmony) card. Leave empty to use the default text.
+     */
+    samajik?: string | null;
+  };
+  objective?: {
+    /**
+     * Leave empty to use the default text.
+     */
+    heading?: string | null;
+    /**
+     * Each row is one paragraph. Wrap highlighted words in **double asterisks**. If you add rows, they replace the default paragraphs.
+     */
+    paragraphs?:
+      | {
+          text?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Leave empty to use the default text.
+     */
+    structureHeading?: string | null;
+    /**
+     * Each row is one paragraph. Wrap highlighted words in **double asterisks**. If you add rows, they replace the default paragraphs.
+     */
+    structureParagraphs?:
+      | {
+          text?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Image shown beside the Objective text. Recommended: about 1084 × 1109 px (nearly square), PNG or WebP, under 1 MB; keep the logo centred with some margin. Leave empty to keep the current image.
+     */
+    image?: (number | null) | Media;
+    /**
+     * Description of the image for screen readers. Leave empty to use the default text.
+     */
+    imageAlt?: string | null;
+  };
+  vision?: {
+    /**
+     * Leave empty to use the default text.
+     */
+    heading?: string | null;
+    /**
+     * Wrap words that should appear highlighted (saffron) in **double asterisks**, e.g. make them **self-reliant**. Leave empty to use the default text.
+     */
+    paragraph?: string | null;
+    /**
+     * Leave empty to use the default text.
+     */
+    appeal?: string | null;
+    /**
+     * Description of the image for screen readers. Leave empty to use the default text.
+     */
+    imageAlt?: string | null;
+  };
+  donate?: {
+    /**
+     * Leave empty to use the default text.
+     */
+    heading?: string | null;
+    /**
+     * Leave empty to use the default text.
+     */
+    waysHeading?: string | null;
+    /**
+     * Each row is one item. If you add rows, they replace the default list.
+     */
+    ways?:
+      | {
+          text?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Leave empty to use the default text.
+     */
+    taxNote?: string | null;
+    /**
+     * Leave empty to use the default text.
+     */
+    contactHeading?: string | null;
+    /**
+     * Each row is one item. If you add rows, they replace the default list.
+     */
+    contactLines?:
+      | {
+          text?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Leave empty to use the default text.
+     */
+    bankHeading?: string | null;
+    /**
+     * Label and value pairs. If you add rows, they replace the default list.
+     */
+    bank?:
+      | {
+          /**
+           * e.g. IFSC Code
+           */
+          label?: string | null;
+          /**
+           * e.g. SBIN0010548
+           */
+          value?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Description of the image for screen readers. Leave empty to use the default text.
+     */
+    imageAlt?: string | null;
+    /**
+     * Text of the online-donation link. Leave empty to use the default text.
+     */
+    onlineDonation?: string | null;
+  };
+  quotes?:
+    | {
+        /**
+         * Leave empty to use the default text.
+         */
+        quote?: string | null;
+        /**
+         * Leave empty to use the default text.
+         */
+        tagline?: string | null;
+        /**
+         * Leave empty to use the default text.
+         */
+        name?: string | null;
+        /**
+         * Leave empty to use the default text.
+         */
+        role?: string | null;
+        /**
+         * Optional portrait. Leave empty to keep the default image.
+         */
+        photo?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  quotesLabels?: {
+    /**
+     * Name of the carousel for screen readers. Leave empty to use the default text.
+     */
+    carousel?: string | null;
+    /**
+     * Dot button label; {n} = slide number, {name} = person. Leave empty to use the default text.
+     */
+    dot?: string | null;
+    /**
+     * Leave empty to use the default text.
+     */
+    pause?: string | null;
+    /**
+     * Leave empty to use the default text.
+     */
+    play?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Text of the About Us page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-content".
+ */
+export interface AboutContent {
+  id: number;
+  header?: {
+    /**
+     * Browser-tab title. Leave empty to use the default text.
+     */
+    metaTitle?: string | null;
+    /**
+     * Small label above the title. Leave empty to use the default text.
+     */
+    eyebrow?: string | null;
+    /**
+     * Main page heading. Leave empty to use the default text.
+     */
+    title?: string | null;
+  };
+  vision?: {
+    /**
+     * Leave empty to use the default text.
+     */
+    heading?: string | null;
+    /**
+     * Each row is one item. If you add rows, they replace the default list.
+     */
+    paragraphs?:
+      | {
+          text?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  message?: {
+    /**
+     * Leave empty to use the default text.
+     */
+    heading?: string | null;
+    /**
+     * Each row is one item. If you add rows, they replace the default list.
+     */
+    quote?:
+      | {
+          text?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Name/designation shown under the message. Empty = not shown.
+     */
+    byline?: string | null;
+  };
+  mission?: {
+    /**
+     * Leave empty to use the default text.
+     */
+    heading?: string | null;
+    /**
+     * Each row is one item. If you add rows, they replace the default list.
+     */
+    paragraphs?:
+      | {
+          text?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  structure?: {
+    /**
+     * Leave empty to use the default text.
+     */
+    heading?: string | null;
+    /**
+     * Each row is one item. If you add rows, they replace the default list.
+     */
+    paragraphs?:
+      | {
+          text?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Text of the Our Work page and the pillar pages.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "work-content".
+ */
+export interface WorkContent {
+  id: number;
+  header?: {
+    /**
+     * Small label above the title. Leave empty to use the default text.
+     */
+    eyebrow?: string | null;
+    /**
+     * Main page heading. Leave empty to use the default text.
+     */
+    title?: string | null;
+  };
+  pillars?: {
+    shiksha?: {
+      /**
+       * Leave empty to use the default text.
+       */
+      tagline?: string | null;
+      /**
+       * Leave empty to use the default text.
+       */
+      text?: string | null;
+    };
+    swasthya?: {
+      /**
+       * Leave empty to use the default text.
+       */
+      tagline?: string | null;
+      /**
+       * Leave empty to use the default text.
+       */
+      text?: string | null;
+    };
+    swavalamban?: {
+      /**
+       * Leave empty to use the default text.
+       */
+      tagline?: string | null;
+      /**
+       * Leave empty to use the default text.
+       */
+      text?: string | null;
+    };
+    samajik?: {
+      /**
+       * Leave empty to use the default text.
+       */
+      tagline?: string | null;
+      /**
+       * Leave empty to use the default text.
+       */
+      text?: string | null;
+    };
+  };
+  /**
+   * Label of the “Learn More” buttons. Leave empty to use the default text.
+   */
+  ctaLabel?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Text of the Major Projects & CSR page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "csr-content".
+ */
+export interface CsrContent {
+  id: number;
+  header?: {
+    /**
+     * Small label above the title. Leave empty to use the default text.
+     */
+    eyebrow?: string | null;
+    /**
+     * Main page heading. Leave empty to use the default text.
+     */
+    title?: string | null;
+    /**
+     * Intro paragraph under the title. Leave empty to use the default text.
+     */
+    subtitle?: string | null;
+  };
+  /**
+   * Leave empty to use the default text.
+   */
+  initiativesHeading?: string | null;
+  /**
+   * If you add rows, they replace the default initiatives.
+   */
+  initiatives?:
+    | {
+        /**
+         * Anchor used by the menu link (/csr#id). Lowercase letters, numbers, hyphens.
+         */
+        id?: string | null;
+        /**
+         * Leave empty to use the default text.
+         */
+        title?: string | null;
+        /**
+         * Leave empty to use the default text.
+         */
+        text?: string | null;
+      }[]
+    | null;
+  pathLab?: {
+    /**
+     * Leave empty to use the default text.
+     */
+    title?: string | null;
+    /**
+     * Leave empty to use the default text.
+     */
+    intro?: string | null;
+    /**
+     * Leave empty to use the default text.
+     */
+    addressLabel?: string | null;
+    /**
+     * Leave empty to use the default text.
+     */
+    address?: string | null;
+    /**
+     * Leave empty to use the default text.
+     */
+    emailLabel?: string | null;
+    /**
+     * Leave empty to use the default text.
+     */
+    email?: string | null;
+    /**
+     * Leave empty to use the default text.
+     */
+    timingLabel?: string | null;
+    /**
+     * Leave empty to use the default text.
+     */
+    timing?: string | null;
+  };
+  cta?: {
+    primary?: {
+      /**
+       * Leave empty to use the default text.
+       */
+      label?: string | null;
+      /**
+       * Site path like /about-us, or a full https:// URL.
+       */
+      href?: string | null;
+    };
+    secondary?: {
+      /**
+       * Leave empty to use the default text.
+       */
+      label?: string | null;
+      /**
+       * Site path like /about-us, or a full https:// URL.
+       */
+      href?: string | null;
+    };
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Text of the Volunteer & Karyakarta page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "volunteer-content".
+ */
+export interface VolunteerContent {
+  id: number;
+  header?: {
+    /**
+     * Small label above the title. Leave empty to use the default text.
+     */
+    eyebrow?: string | null;
+    /**
+     * Main page heading. Leave empty to use the default text.
+     */
+    title?: string | null;
+    /**
+     * Intro paragraph under the title. Leave empty to use the default text.
+     */
+    subtitle?: string | null;
+  };
+  capacity?: {
+    /**
+     * Leave empty to use the default text.
+     */
+    heading?: string | null;
+    /**
+     * Leave empty to use the default text.
+     */
+    text?: string | null;
+  };
+  cta?: {
+    /**
+     * Leave empty to use the default text.
+     */
+    label?: string | null;
+    /**
+     * Site path like /about-us, or a full https:// URL.
+     */
+    href?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Text of the Media & Gallery page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "gallery-content".
+ */
+export interface GalleryContent {
+  id: number;
+  header?: {
+    /**
+     * Small label above the title. Leave empty to use the default text.
+     */
+    eyebrow?: string | null;
+    /**
+     * Main page heading. Leave empty to use the default text.
+     */
+    title?: string | null;
+    /**
+     * Intro paragraph under the title. Leave empty to use the default text.
+     */
+    subtitle?: string | null;
+  };
+  /**
+   * Leave empty to use the default text.
+   */
+  recentHeading?: string | null;
+  allEvents?: {
+    /**
+     * Leave empty to use the default text.
+     */
+    label?: string | null;
+    /**
+     * Site path like /about-us, or a full https:// URL.
+     */
+    href?: string | null;
+  };
+  /**
+   * Fallback description of gallery photos for screen readers. Leave empty to use the default text.
+   */
+  photoAlt?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Text at the top of the Contact page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-content".
+ */
+export interface ContactContent {
+  id: number;
+  header?: {
+    /**
+     * Small label above the title. Leave empty to use the default text.
+     */
+    eyebrow?: string | null;
+    /**
+     * Main page heading. Leave empty to use the default text.
+     */
+    title?: string | null;
+    /**
+     * Intro paragraph under the title. Leave empty to use the default text.
+     */
+    subtitle?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Text and logos of the Our Sewa Partners page.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "partners-content".
+ */
+export interface PartnersContent {
+  id: number;
+  meta?: {
+    /**
+     * Browser-tab title. Leave empty to use the default text.
+     */
+    title?: string | null;
+    /**
+     * Leave empty to use the default text.
+     */
+    description?: string | null;
+  };
+  header?: {
+    /**
+     * Small label above the title. Leave empty to use the default text.
+     */
+    eyebrow?: string | null;
+    /**
+     * Main page heading. Leave empty to use the default text.
+     */
+    title?: string | null;
+  };
+  note?: {
+    /**
+     * Leave empty to use the default text.
+     */
+    heading?: string | null;
+    /**
+     * Each row is one item. If you add rows, they replace the default list.
+     */
+    paragraphs?:
+      | {
+          text?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Name of the logo grid for screen readers. Leave empty to use the default text.
+   */
+  gridLabel?: string | null;
+  /**
+   * If you add rows, they replace the default partner list. A logo is optional.
+   */
+  partners?:
+    | {
+        /**
+         * Partner name (also the logo's alt text).
+         */
+        name?: string | null;
+        /**
+         * Optional. Leave empty to keep the default logo for this name. Recommended: transparent PNG/WebP or SVG-quality image, wide logos about 600 × 200 px, round emblems about 400 × 400 px, under 300 KB. Four logos are shown per row.
+         */
+        logo?: (number | null) | Media;
+        /**
+         * Tick for round/square emblems so they show taller than wide wordmarks.
+         */
+        emblem?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  cta?: {
+    /**
+     * Leave empty to use the default text.
+     */
+    heading?: string | null;
+    /**
+     * Leave empty to use the default text.
+     */
+    text?: string | null;
+    /**
+     * Leave empty to use the default text.
+     */
+    button?: string | null;
+    /**
+     * Site path like /about-us, or a full https:// URL.
+     */
+    href?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Footer motto, copyright, column headings and registration numbers.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer-content".
+ */
+export interface FooterContent {
+  id: number;
+  /**
+   * Leave empty to use the default text.
+   */
+  motto?: string | null;
+  /**
+   * Leave empty to use the default text.
+   */
+  copyright?: string | null;
+  headings?: {
+    /**
+     * Leave empty to use the default text.
+     */
+    quickLinks?: string | null;
+    /**
+     * Leave empty to use the default text.
+     */
+    contact?: string | null;
+  };
+  /**
+   * e.g. PAN, 80G number. If you add rows, they replace the default list.
+   */
+  compliance?:
+    | {
+        /**
+         * Leave empty to use the default text.
+         */
+        label?: string | null;
+        /**
+         * Leave empty to use the default text.
+         */
+        value?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
@@ -1207,6 +2042,7 @@ export interface HomePageSelect<T extends boolean = true> {
         story?: T;
         readMoreLabel?: T;
         videoUrl?: T;
+        videoThumbnail?: T;
         videoTitle?: T;
       };
   pillarsHeading?:
@@ -1411,6 +2247,414 @@ export interface UiStringsSelect<T extends boolean = true> {
               title?: T;
             };
         guestsNote?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-content_select".
+ */
+export interface HomeContentSelect<T extends boolean = true> {
+  hero?:
+    | T
+    | {
+        title?: T;
+        intro?: T;
+      };
+  impact?:
+    | T
+    | {
+        lead?: T;
+        text?: T;
+      };
+  pillarsHeading?:
+    | T
+    | {
+        title?: T;
+      };
+  pillarLines?:
+    | T
+    | {
+        shiksha?: T;
+        swasthya?: T;
+        swavalamban?: T;
+        samajik?: T;
+      };
+  objective?:
+    | T
+    | {
+        heading?: T;
+        paragraphs?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        structureHeading?: T;
+        structureParagraphs?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        image?: T;
+        imageAlt?: T;
+      };
+  vision?:
+    | T
+    | {
+        heading?: T;
+        paragraph?: T;
+        appeal?: T;
+        imageAlt?: T;
+      };
+  donate?:
+    | T
+    | {
+        heading?: T;
+        waysHeading?: T;
+        ways?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        taxNote?: T;
+        contactHeading?: T;
+        contactLines?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        bankHeading?: T;
+        bank?:
+          | T
+          | {
+              label?: T;
+              value?: T;
+              id?: T;
+            };
+        imageAlt?: T;
+        onlineDonation?: T;
+      };
+  quotes?:
+    | T
+    | {
+        quote?: T;
+        tagline?: T;
+        name?: T;
+        role?: T;
+        photo?: T;
+        id?: T;
+      };
+  quotesLabels?:
+    | T
+    | {
+        carousel?: T;
+        dot?: T;
+        pause?: T;
+        play?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-content_select".
+ */
+export interface AboutContentSelect<T extends boolean = true> {
+  header?:
+    | T
+    | {
+        metaTitle?: T;
+        eyebrow?: T;
+        title?: T;
+      };
+  vision?:
+    | T
+    | {
+        heading?: T;
+        paragraphs?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+      };
+  message?:
+    | T
+    | {
+        heading?: T;
+        quote?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        byline?: T;
+      };
+  mission?:
+    | T
+    | {
+        heading?: T;
+        paragraphs?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+      };
+  structure?:
+    | T
+    | {
+        heading?: T;
+        paragraphs?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "work-content_select".
+ */
+export interface WorkContentSelect<T extends boolean = true> {
+  header?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+      };
+  pillars?:
+    | T
+    | {
+        shiksha?:
+          | T
+          | {
+              tagline?: T;
+              text?: T;
+            };
+        swasthya?:
+          | T
+          | {
+              tagline?: T;
+              text?: T;
+            };
+        swavalamban?:
+          | T
+          | {
+              tagline?: T;
+              text?: T;
+            };
+        samajik?:
+          | T
+          | {
+              tagline?: T;
+              text?: T;
+            };
+      };
+  ctaLabel?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "csr-content_select".
+ */
+export interface CsrContentSelect<T extends boolean = true> {
+  header?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        subtitle?: T;
+      };
+  initiativesHeading?: T;
+  initiatives?:
+    | T
+    | {
+        id?: T;
+        title?: T;
+        text?: T;
+      };
+  pathLab?:
+    | T
+    | {
+        title?: T;
+        intro?: T;
+        addressLabel?: T;
+        address?: T;
+        emailLabel?: T;
+        email?: T;
+        timingLabel?: T;
+        timing?: T;
+      };
+  cta?:
+    | T
+    | {
+        primary?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+            };
+        secondary?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "volunteer-content_select".
+ */
+export interface VolunteerContentSelect<T extends boolean = true> {
+  header?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        subtitle?: T;
+      };
+  capacity?:
+    | T
+    | {
+        heading?: T;
+        text?: T;
+      };
+  cta?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "gallery-content_select".
+ */
+export interface GalleryContentSelect<T extends boolean = true> {
+  header?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        subtitle?: T;
+      };
+  recentHeading?: T;
+  allEvents?:
+    | T
+    | {
+        label?: T;
+        href?: T;
+      };
+  photoAlt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact-content_select".
+ */
+export interface ContactContentSelect<T extends boolean = true> {
+  header?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        subtitle?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "partners-content_select".
+ */
+export interface PartnersContentSelect<T extends boolean = true> {
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+      };
+  header?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+      };
+  note?:
+    | T
+    | {
+        heading?: T;
+        paragraphs?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+      };
+  gridLabel?: T;
+  partners?:
+    | T
+    | {
+        name?: T;
+        logo?: T;
+        emblem?: T;
+        id?: T;
+      };
+  cta?:
+    | T
+    | {
+        heading?: T;
+        text?: T;
+        button?: T;
+        href?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer-content_select".
+ */
+export interface FooterContentSelect<T extends boolean = true> {
+  motto?: T;
+  copyright?: T;
+  headings?:
+    | T
+    | {
+        quickLinks?: T;
+        contact?: T;
+      };
+  compliance?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        id?: T;
       };
   updatedAt?: T;
   createdAt?: T;

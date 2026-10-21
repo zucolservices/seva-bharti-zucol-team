@@ -211,7 +211,16 @@ export const HomePage: GlobalConfig = {
         { name: "tagline", type: "text", maxLength: 160 },
         { name: "title", type: "text", required: true, maxLength: 200 },
         { name: "intro", type: "textarea", maxLength: 2000 },
-        { name: "image", type: "upload", relationTo: "media", admin: { description: "Falls back to the site logo." } },
+        {
+          name: "image",
+          type: "upload",
+          relationTo: "media",
+          label: "Hero banner image",
+          admin: {
+            description:
+              "Large picture on the right of the home-page hero. Resolution: 1280 × 880 px recommended (landscape, about 3:2); minimum 960 × 660 px (smaller looks blurry on large screens); anything above 2560 px wide is shrunk automatically. PNG or WebP, under 1.5 MB. Soft, faded edges blend best into the page background. Shown up to about 1000 px wide on large screens. Falls back to the site logo when empty. Upload limits: max 5 MB, max 40 megapixels, JPG/PNG/WebP/AVIF only.",
+          },
+        },
         ctaField("primaryCta", "Primary button"),
         ctaField("secondaryCta", "Secondary button"),
       ],
@@ -268,6 +277,16 @@ export const HomePage: GlobalConfig = {
           label: "YouTube video link",
           validate: validateYouTubeUrl,
           admin: { description: "e.g. https://www.youtube.com/watch?v=zJgM7UGn8JI" },
+        },
+        {
+          name: "videoThumbnail",
+          type: "upload",
+          relationTo: "media",
+          label: "Video thumbnail",
+          admin: {
+            description:
+              "Picture shown instead of the video; visitors click it to play the video. Resolution: 1280 × 720 px recommended (16:9 landscape); minimum 640 × 360 px; other shapes are cropped to 16:9. JPG, PNG or WebP, under 500 KB. Leave empty to use the video's own YouTube thumbnail. Upload limits: max 5 MB, max 40 megapixels, JPG/PNG/WebP/AVIF only.",
+          },
         },
         { name: "videoTitle", type: "text", maxLength: 200, admin: { description: "Short description of the video (for screen readers)" } },
       ],

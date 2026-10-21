@@ -9,10 +9,12 @@ import nodemailer from "nodemailer";
 import sharp from "sharp";
 
 import { Users } from "./collections/Users";
+import { PortalUsers } from "./collections/PortalUsers";
 import { Media } from "./collections/Media";
 import { Pillars } from "./collections/Pillars";
 import { Events } from "./collections/Events";
 import { globals } from "./globals";
+import { pageContentGlobals } from "./globals/page-content";
 import { validateHref } from "./fields";
 
 const filename = fileURLToPath(import.meta.url);
@@ -82,7 +84,7 @@ export default buildConfig({
       providers: ["/components/admin/PasswordToggle#PasswordToggle"],
     },
   },
-  collections: [Pillars, Events, Media, Users],
+  collections: [Pillars, Events, Media, Users, PortalUsers],
   // Locked accounts must not be distinguishable from a wrong password
   // (prevents confirming which staff emails exist).
   i18n: {
@@ -90,7 +92,7 @@ export default buildConfig({
       en: { error: { userLocked: "The email or password provided is incorrect." } },
     },
   },
-  globals,
+  globals: [...globals, ...pageContentGlobals],
   // Rich-text links use the same safe-scheme validator as every other link.
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [

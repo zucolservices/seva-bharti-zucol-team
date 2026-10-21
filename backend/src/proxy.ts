@@ -1,4 +1,5 @@
 import { createHash, timingSafeEqual } from "node:crypto";
+import { isIP } from "node:net";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Abuse protection for the CMS API (Next 16 "proxy", formerly middleware).
@@ -19,7 +20,7 @@ const RULES: Rule[] = [
     name: "auth",
     test: (p, m) =>
       m === "POST" &&
-      /^\/api\/users\/(login|forgot-password|reset-password|first-register|unlock|refresh-token)\/?$/.test(p),
+      /^\/api\/(users|portal-users)\/(login|forgot-password|reset-password|first-register|unlock|refresh-token)\/?$/.test(p),
     limit: 10,
     windowMs: 15 * MIN,
   },
@@ -95,6 +96,19 @@ function isFrontendServer(req: NextRequest): boolean {
   return timingSafeEqual(sha256(given), sha256(expected));
 }
 
+// Portal logins (/api/portal-users/*) are proxied by the frontend server, so
+// they all arrive from its single IP. When the request carries a valid
+// x-frontend-key, the frontend forwards the real visitor IP in
+// x-portal-client-ip and we limit per visitor instead. Only a plausible IP
+// literal is accepted; anything else falls back to the connection IP (which
+// then shares the frontend server's bucket — fail closed, not open).
+function portalClientIp(req: NextRequest): string | null {
+  if (!isFrontendServer(req)) return null;
+  const raw = req.headers.get("x-portal-client-ip")?.trim() ?? "";
+  if (raw.length > 45 || !/^[0-9a-f:.]+$/i.test(raw) || isIP(raw) === 0) return null;
+  return raw.toLowerCase();
+}
+
 export function proxy(req: NextRequest) {
   const path = canonicalPath(req.nextUrl.pathname);
   if (path === null) return new NextResponse(null, { status: 400 });
@@ -103,11 +117,14 @@ export function proxy(req: NextRequest) {
   if ((method === "GET" || method === "HEAD") && path.startsWith("/api/media/file/")) return NextResponse.next();
   const rule = RULES.find((r) => r.test(path, method));
   if (!rule) return NextResponse.next();
-  if (rule.name === "read" && (method === "GET" || method === "HEAD") && isFrontendServer(req)) {
+  const isPortal = path === "/api/portal-users" || path.startsWith("/api/portal-users/");
+  // Frontend server content reads are exempt; portal account requests (e.g.
+  // /me) are not — they stay limited per visitor IP.
+  if (rule.name === "read" && !isPortal && (method === "GET" || method === "HEAD") && isFrontendServer(req)) {
     return NextResponse.next();
   }
 
-  const ip = clientIp(req);
+  const ip = (isPortal ? portalClientIp(req) : null) ?? clientIp(req);
   const { ok, retryAfter } = hit(`${rule.name}:${ip}`, rule.limit, rule.windowMs);
   if (!ok) {
     console.warn(JSON.stringify({ msg: "ratelimit.blocked", rule: rule.name, ip, path, method }));
