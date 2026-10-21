@@ -6,8 +6,8 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { HeaderData } from "@/lib/view-types";
 
-// Site header. Menu items come from the Navigation global; an item with
-// children renders as a click-to-open dropdown (e.g. सेवा कार्य → pillars).
+// Site header. Menu items come from src/content/navigation.ts; an item with
+// children renders as a click-to-open dropdown (e.g. हमारा कार्य → pillars).
 //
 // `usePathname` suspends while Next.js prerenders the App Shell of dynamic
 // routes, so the layout wraps <Header> in <Suspense> and uses <HeaderView>
@@ -25,6 +25,7 @@ export function HeaderView({
   brandTitle,
   tagline,
   items,
+  cta,
   pathname,
 }: HeaderData & { pathname: string | null }) {
   const [open, setOpen] = useState(false);
@@ -32,10 +33,13 @@ export function HeaderView({
   const dropdownRefs = useRef(new Map<string, HTMLLIElement>());
 
   const isActive = (href: string | null | undefined) => {
-    if (!href || pathname == null || !href.startsWith("/")) return false;
+    // In-page links (/about-us#vision) are never "the current page".
+    if (!href || pathname == null || !href.startsWith("/") || href.includes("#")) return false;
     return href === "/" ? pathname === "/" : pathname.startsWith(href);
   };
-  const groupActive = (children: { href: string }[]) => children.some((c) => isActive(c.href));
+  // A dropdown is active when any child's page (ignoring #section) is open.
+  const groupActive = (children: { href: string }[]) =>
+    children.some((c) => isActive(c.href.split("#")[0]));
 
   // Mobile list: items from the first dropdown onwards get a small top gap
   // (matches the original layout).
@@ -169,6 +173,20 @@ export function HeaderView({
                 </li>
               ) : null,
             )}
+            {cta && (
+              <li className="ml-2">
+                <Link
+                  href={cta.href}
+                  lang="hi"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-saffron-500 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-saffron-500/30 transition-colors hover:bg-saffron-600"
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.1 4.4 2.6.8-1.5 2.3-2.6 4.4-2.6 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21Z" />
+                  </svg>
+                  {cta.label}
+                </Link>
+              </li>
+            )}
           </ul>
         </nav>
 
@@ -240,6 +258,18 @@ export function HeaderView({
                   </Link>
                 </li>
               ) : null,
+            )}
+            {cta && (
+              <li className="mt-3 pb-2">
+                <Link
+                  href={cta.href}
+                  lang="hi"
+                  onClick={() => setOpen(false)}
+                  className="block rounded-lg bg-saffron-500 px-3 py-3 text-center text-sm font-semibold text-white hover:bg-saffron-600"
+                >
+                  {cta.label}
+                </Link>
+              </li>
             )}
           </ul>
         </nav>

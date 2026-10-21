@@ -1,8 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { Navigation, SiteSetting } from "@/payload-types";
+import type { SiteSetting } from "@/payload-types";
 import SocialIcon, { socialLabels } from "@/components/SocialIcon";
 import { siteLogo, telHref } from "@/lib/site-data";
+import { FOOTER_LINKS } from "@/content/navigation";
+import { FOOTER_COMPLIANCE, FOOTER_MOTTO, FOOTER_SOCIALS } from "@/content/pages/footer";
 
 // Links the organisation name inside the copyright text (if present) to orgUrl.
 function Copyright({ text, name, url }: { text: string; name: string; url?: string | null }) {
@@ -20,18 +22,13 @@ function Copyright({ text, name, url }: { text: string; name: string; url?: stri
   );
 }
 
-export default function Footer({
-  settings,
-  navigation,
-}: {
-  settings: SiteSetting | null;
-  navigation: Navigation | null;
-}) {
+export default function Footer({ settings }: { settings: SiteSetting | null }) {
   const main = settings?.offices?.[0];
   const phones = main?.phones ?? [];
   const logo = siteLogo(settings);
-  const quickLinks = navigation?.footerLinks ?? [];
-  const socials = settings?.socials ?? [];
+  const quickLinks = FOOTER_LINKS;
+  // Live-site links until Site Settings → Social is filled in.
+  const socials = settings?.socials?.length ? settings.socials : FOOTER_SOCIALS;
   const email = settings?.primaryEmail;
 
   return (
@@ -60,6 +57,9 @@ export default function Footer({
               {settings.introHi}
             </p>
           )}
+          <p lang="hi" className="mt-4 max-w-sm border-l-2 border-saffron-400 pl-3 text-sm font-semibold italic leading-relaxed text-saffron-200">
+            {FOOTER_MOTTO}
+          </p>
         </div>
 
         <nav aria-label="Footer">
@@ -71,7 +71,7 @@ export default function Footer({
           {quickLinks.length > 0 && (
             <ul className="mt-4 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
               {quickLinks.map((item, i) => (
-                <li key={item.id ?? `${item.href}-${i}`}>
+                <li key={`${item.href}-${i}`}>
                   <Link
                     href={item.href}
                     lang="hi"
@@ -117,7 +117,7 @@ export default function Footer({
           {socials.length > 0 && (
             <ul className="mt-5 flex items-center gap-3">
               {socials.map((s, i) => (
-                <li key={s.id ?? `${s.platform}-${i}`}>
+                <li key={`${s.platform}-${i}`}>
                   <a
                     href={s.url}
                     aria-label={socialLabels[s.platform] ?? s.platform}
@@ -132,6 +132,18 @@ export default function Footer({
             </ul>
           )}
         </div>
+      </div>
+
+      {/* Registration / tax-exemption details */}
+      <div className="border-t border-white/10">
+        <dl lang="hi" className="container-page flex flex-wrap gap-x-8 gap-y-2 py-4 text-xs text-neutral-400">
+          {FOOTER_COMPLIANCE.map((c) => (
+            <div key={c.label} className="flex gap-1.5">
+              <dt className="font-semibold text-neutral-300">{c.label}:</dt>
+              <dd>{c.value}</dd>
+            </div>
+          ))}
+        </dl>
       </div>
 
       <div className="border-t border-saffron-500/60">

@@ -4,6 +4,8 @@ import StatCounter from "@/components/StatCounter";
 import RichText from "@/components/RichText";
 import { mediaAlt, mediaUrl } from "@/lib/cms";
 import type { Pillar, UiString } from "@/payload-types";
+import { WORK_PILLARS } from "@/content/pages/work";
+import { byPillar } from "@/content/pillars";
 
 // Accent-aware class sets so each pillar can lean saffron or blue.
 const accentMap = {
@@ -47,6 +49,7 @@ export default function PillarPage({
   const stats = pillar.stats ?? [];
   const stories = pillar.successStories ?? [];
   const aayaam = pillar.aayaam ?? [];
+  const intro = byPillar(WORK_PILLARS, pillar.slug);
 
   return (
     <>
@@ -85,6 +88,20 @@ export default function PillarPage({
         {/* Formal accent strip under the banner. */}
         <div className={`absolute inset-x-0 bottom-0 h-1 ${c.topbar}`} />
       </section>
+
+      {/* 0. Intro from the client content document (src/content/pages/work.ts). */}
+      {intro && (
+        <section className="container-page pt-12 md:pt-14">
+          <div className={`rounded-2xl border bg-white p-6 shadow-sm md:p-8 ${c.border}`}>
+            <p lang="hi" className={`text-xl font-bold italic md:text-2xl ${c.heading}`}>
+              {intro.tagline}
+            </p>
+            <p lang="hi" className="mt-3 max-w-3xl leading-relaxed text-ink-soft">
+              {intro.text}
+            </p>
+          </div>
+        </section>
+      )}
 
       {/* 1. Vivran — long-form content + highlighted real programmes. */}
       <section className="container-page py-12 md:py-14">

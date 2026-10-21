@@ -62,6 +62,8 @@ export interface HeaderData {
   brandTitle: string;
   tagline: string;
   items: NavItemView[];
+  /** Highlighted button after the menu (e.g. दान करें). */
+  cta?: NavLinkView | null;
 }
 
 /** Placeholder headshot shown until a real guest photo is uploaded. */

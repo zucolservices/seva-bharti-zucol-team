@@ -1,5 +1,7 @@
 import "server-only";
-import type { Navigation, Pillar, SiteSetting, UiString } from "@/payload-types";
+import type { Pillar, SiteSetting, UiString } from "@/payload-types";
+import type { NavItemContent } from "@/content/navigation";
+import { PILLAR_NAMES, byPillar } from "@/content/pillars";
 import { mediaAlt, mediaUrl, type MediaRef } from "@/lib/cms";
 import { DEFAULT_A11Y, LOGO_FALLBACK, type A11yLabels, type GuestView, type NavItemView, type PhotoView } from "@/lib/view-types";
 
@@ -32,15 +34,16 @@ export function primaryPhone(settings: SiteSetting | null): string | null {
   return settings?.topBarPhone || settings?.offices?.[0]?.phones?.[0]?.number || null;
 }
 
-/** Header menu with the pillars dropdown expanded from the Pillars collection. */
-export function buildNavItems(navigation: Navigation | null, pillars: Pillar[]): NavItemView[] {
-  return (navigation?.headerItems ?? []).map((item, i) => ({
-    id: item.id ?? `${item.label}-${i}`,
+/** Header menu from src/content/navigation.ts; `{ pillars: true }` expands to the Pillars collection. */
+export function buildNavItems(items: NavItemContent[], pillars: Pillar[]): NavItemView[] {
+  const pillarLinks = pillars
+    .filter((p) => p.showInNav !== false)
+    .map((p) => ({ label: byPillar(PILLAR_NAMES, p.slug)?.hi || p.navLabel || p.nameHi, href: `/${p.slug}` }));
+  return items.map((item, i) => ({
+    id: `${item.label}-${i}`,
     label: item.label,
     href: item.href || null,
-    children: item.pillarsDropdown
-      ? pillars.filter((p) => p.showInNav !== false).map((p) => ({ label: p.navLabel || p.nameHi, href: `/${p.slug}` }))
-      : (item.children ?? []).map((c) => ({ label: c.label, href: c.href })),
+    children: (item.children ?? []).flatMap((c) => ("pillars" in c ? pillarLinks : [c])),
   }));
 }
 

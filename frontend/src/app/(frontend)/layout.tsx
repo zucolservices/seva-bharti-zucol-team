@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import { getGlobal, getPillars } from "@/lib/cms";
 import { buildNavItems, siteLogo, a11yLabels } from "@/lib/site-data";
 import type { HeaderData } from "@/lib/view-types";
+import { HEADER_CTA, HEADER_NAV } from "@/content/navigation";
 
 const latin = Noto_Sans({
   subsets: ["latin"],
@@ -42,9 +43,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const [settings, navigation, ui, pillars] = await Promise.all([
+  const [settings, ui, pillars] = await Promise.all([
     getGlobal("site-settings"),
-    getGlobal("navigation"),
     getGlobal("ui-strings"),
     getPillars(),
   ]);
@@ -57,7 +57,8 @@ export default async function RootLayout({
     logoAlt: logo.alt,
     brandTitle: settings?.brandTitle ?? "",
     tagline: settings?.tagline ?? "",
-    items: buildNavItems(navigation, pillars),
+    items: buildNavItems(HEADER_NAV, pillars),
+    cta: HEADER_CTA,
   };
 
   return (
@@ -78,7 +79,7 @@ export default async function RootLayout({
         <main id="main" className="flex-1">
           {children}
         </main>
-        <Footer settings={settings} navigation={navigation} />
+        <Footer settings={settings} />
       </body>
     </html>
   );

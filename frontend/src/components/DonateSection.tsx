@@ -29,7 +29,7 @@ const SOCIALS = [
 
 export default function DonateSection() {
   return (
-    <section className="bg-[url('/home/bg-vission.jpg')] bg-cover bg-center bg-no-repeat">
+    <section id="donate" className="scroll-mt-28 bg-[url('/home/bg-vission.jpg')] bg-cover bg-center bg-no-repeat">
       <div className="container-page py-12">
         <h2 lang="hi" className="text-2xl font-bold leading-snug text-saffron-500 md:text-3xl">
           “सेवा” ईश्वर भक्ति का प्रथम सोपान एवं देशभक्ति का प्रकट स्वरूप है। इस कार्य में आप भी सामर्थ्य

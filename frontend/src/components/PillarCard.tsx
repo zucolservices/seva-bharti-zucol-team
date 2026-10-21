@@ -3,9 +3,15 @@ import type { Pillar } from "@/payload-types";
 
 export default function PillarCard({
   pillar,
+  names,
+  summary,
   ctaLabel,
 }: {
   pillar: Pillar;
+  /** Overrides the CMS names (Hindi title + English badge). */
+  names?: { hi: string; en: string };
+  /** Overrides the CMS summary (e.g. the home-page one-liners). */
+  summary?: string;
   ctaLabel?: string | null;
 }) {
   const isBlue = pillar.accent === "blue";
@@ -21,13 +27,13 @@ export default function PillarCard({
       <span
         className={`inline-flex w-fit items-center rounded-full px-3 py-1 text-sm font-semibold ${badge}`}
       >
-        {pillar.nameEn}
+        {names?.en ?? pillar.nameEn}
       </span>
       <h3 lang="hi" className="mt-3 text-xl font-bold text-ink">
-        {pillar.nameHi}
+        {names?.hi ?? pillar.nameHi}
       </h3>
       <p lang="hi" className="mt-2 flex-1 text-sm leading-relaxed text-ink-soft">
-        {pillar.summaryHi}
+        {summary ?? pillar.summaryHi}
       </p>
       {ctaLabel && (
         <span lang="hi" className={`mt-4 text-sm font-semibold ${cta}`}>

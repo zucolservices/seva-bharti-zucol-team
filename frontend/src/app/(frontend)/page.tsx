@@ -4,9 +4,12 @@ import Link from "next/link";
 import DonateSection from "@/components/DonateSection";
 import EventCard from "@/components/EventCard";
 import FeaturedStory from "@/components/FeaturedStory";
+import ImpactBanner from "@/components/ImpactBanner";
 import MissionVision from "@/components/MissionVision";
 import QuoteCarousel from "@/components/QuoteCarousel";
 import { DEFAULT_FEATURED_STORY } from "@/content/featured-story-default";
+import { HOME_HERO, HOME_PILLARS_HEADING, HOME_PILLAR_LINES } from "@/content/pages/home";
+import { PILLAR_NAMES, byPillar } from "@/content/pillars";
 import PillarCard from "@/components/PillarCard";
 import StatCounter from "@/components/StatCounter";
 import SectionHeading from "@/components/SectionHeading";
@@ -78,16 +81,13 @@ export default async function HomePage() {
                 {hero.tagline}
               </p>
             )}
-            {hero?.title && (
-              <h1 className="mt-2 text-3xl font-bold leading-tight tracking-tight text-ink md:text-5xl">
-                {hero.title}
-              </h1>
-            )}
-            {hero?.intro && (
-              <p lang="hi" className="mt-5 max-w-2xl text-base leading-relaxed text-ink-soft md:text-lg">
-                {hero.intro}
-              </p>
-            )}
+            {/* Title and intro from the client content document (src/content/pages/home.ts). */}
+            <h1 lang="hi" className="mt-2 text-3xl font-bold leading-tight tracking-tight text-ink md:text-5xl">
+              {HOME_HERO.title}
+            </h1>
+            <p lang="hi" className="mt-5 max-w-2xl text-base leading-relaxed text-ink-soft md:text-lg">
+              {HOME_HERO.intro}
+            </p>
             {((primary?.label && primary.href) || (secondary?.label && secondary.href)) && (
               <div className="mt-8 flex flex-wrap gap-4">
                 {primary?.label && primary.href && (
@@ -160,6 +160,9 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* Impact philosophy banner */}
+      <ImpactBanner />
+
       {/* Featured story with video (Home Page → Featured story) */}
       {/* CMS content when the CMS has the fields; bundled default until then. */}
       <FeaturedStory story={home && "featuredStory" in home ? home.featuredStory : DEFAULT_FEATURED_STORY} />
@@ -169,14 +172,20 @@ export default async function HomePage() {
         <section className="container-page py-14">
           <div className="mb-8 flex justify-center">
             <SectionHeading
-              eyebrow={home?.pillarsHeading?.eyebrow}
-              title={home?.pillarsHeading?.title}
+              eyebrow={HOME_PILLARS_HEADING.eyebrow}
+              title={HOME_PILLARS_HEADING.title}
               align="center"
             />
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {pillars.map((p) => (
-              <PillarCard key={p.id} pillar={p} ctaLabel={ui?.pillarCardCta} />
+              <PillarCard
+                key={p.id}
+                pillar={p}
+                names={byPillar(PILLAR_NAMES, p.slug)}
+                summary={byPillar(HOME_PILLAR_LINES, p.slug)}
+                ctaLabel={ui?.pillarCardCta}
+              />
             ))}
           </div>
         </section>

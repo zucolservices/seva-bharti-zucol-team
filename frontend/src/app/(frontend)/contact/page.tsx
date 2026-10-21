@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import PageHeader from "@/components/PageHeader";
 import { getGlobal } from "@/lib/cms";
 import { telHref } from "@/lib/site-data";
+import { CONTACT_HEADER } from "@/content/pages/contact";
 
 export async function generateMetadata(): Promise<Metadata> {
   const contact = await getGlobal("contact-page");
@@ -19,9 +20,9 @@ export default async function ContactPage() {
   return (
     <>
       <PageHeader
-        title={contact?.header?.title}
-        eyebrow={contact?.header?.eyebrow}
-        subtitle={contact?.header?.subtitle}
+        title={CONTACT_HEADER.title}
+        eyebrow={CONTACT_HEADER.eyebrow}
+        subtitle={CONTACT_HEADER.subtitle}
       />
 
       <div className="container-page py-12">
