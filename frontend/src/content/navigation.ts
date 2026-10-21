@@ -55,7 +55,7 @@ export const HEADER_NAV: NavItemContent[] = [
       { label: "Academic Internships & Skilling Courses", href: "/csr#internships" },
     ],
   },
-  { label: "Volunteer & Karyakarta Portal", href: "/volunteer" },
+  { label: "Volunteer", href: "/volunteer" },
   { label: "Media & Gallery", href: "/gallery" },
   { label: "Contact Us", href: "/contact" },
   { label: "Our Sewa Partners", href: "/partners" },
@@ -63,9 +63,10 @@ export const HEADER_NAV: NavItemContent[] = [
     label: "Login",
     utility: true,
     children: [
-      { label: "Pathology Lab Login", href: "/login/pathology" },
-      { label: "Publication Login", href: "/login/publication" },
-      { label: "Dashboard", cmsAdmin: true },
+      // "#" for now: the portal logins are not opened from the menu yet.
+      { label: "Pathology Lab Login", href: "#" },
+      { label: "Publication Login", href: "#" },
+      { label: "Dashboard", href: "https://dashboard.sewabhartirajasthan.org/" },
     ],
   },
 ];
@@ -79,7 +80,7 @@ export const FOOTER_LINKS: { label: string; href: string }[] = [
   { label: "About Us", href: "/about-us" },
   { label: "Core Pillars", href: "/our-work" },
   { label: "CSR Projects", href: "/csr" },
-  { label: "Karyakarta Portal", href: "/volunteer" },
+  { label: "Volunteer", href: "/volunteer" },
 ];
 
 /** Screen-reader note on menu links that open in a new tab (e.g. Dashboard). */
