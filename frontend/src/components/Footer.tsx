@@ -14,7 +14,8 @@ const DEFAULT_CONTENT = {
   compliance: FOOTER_COMPLIANCE,
 };
 
-// Links the organisation name inside the copyright text (if present) to orgUrl.
+// Links the organisation name inside the copyright text (if present) to orgUrl
+// (https://sewabhartirajasthan.org/ by default); the match ignores letter case.
 function Copyright({ text, name, url }: { text: string; name: string; url?: string | null }) {
   const linkClass = "font-semibold text-saffron-400 hover:underline";
   const at = name && url ? text.toLowerCase().indexOf(name.toLowerCase()) : -1;
