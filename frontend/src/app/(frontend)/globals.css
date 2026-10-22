@@ -142,6 +142,27 @@ button:focus-visible,
   transform: scaleX(1);
 }
 
+/* Same underline for plain text links without padding (footer). */
+.link-underline {
+  position: relative;
+}
+.link-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-saffron-500);
+  transform: scaleX(0);
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.link-underline:hover::after,
+.link-underline:focus-visible::after {
+  transform: scaleX(1);
+}
+
 @keyframes nav-drop {
   from {
     opacity: 0;
@@ -165,6 +186,7 @@ button:focus-visible,
 
 @media (prefers-reduced-motion: reduce) {
   .nav-link::after,
+  .link-underline::after,
   .nav-drop,
   .nav-panel {
     transition: none;

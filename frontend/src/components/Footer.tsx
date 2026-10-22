@@ -17,7 +17,7 @@ const DEFAULT_CONTENT = {
 // Links the organisation name inside the copyright text (if present) to orgUrl
 // (https://sewabhartirajasthan.org/ by default); the match ignores letter case.
 function Copyright({ text, name, url }: { text: string; name: string; url?: string | null }) {
-  const linkClass = "font-semibold text-saffron-400 hover:underline";
+  const linkClass = "link-underline font-semibold text-saffron-400";
   const at = name && url ? text.toLowerCase().indexOf(name.toLowerCase()) : -1;
   if (at === -1 || !url) return <>{text}</>;
   return (
@@ -89,7 +89,7 @@ export default function Footer({
                 <li key={`${item.href}-${i}`}>
                   <Link
                     href={item.href}
-                    className="text-neutral-300 hover:text-saffron-300"
+                    className="link-underline text-neutral-300 transition-colors hover:text-saffron-300"
                   >
                     {item.label}
                   </Link>
@@ -109,7 +109,7 @@ export default function Footer({
               <p>
                 {phones.map((p, i) => (
                   <span key={p.id ?? `${p.number}-${i}`}>
-                    <a href={telHref(p.number)} className="hover:text-saffron-300">
+                    <a href={telHref(p.number)} className="link-underline transition-colors hover:text-saffron-300">
                       {p.number}
                     </a>
                     {i < phones.length - 1 ? ", " : ""}
@@ -119,7 +119,7 @@ export default function Footer({
             )}
             {email && (
               <p>
-                <a href={`mailto:${email}`} className="hover:text-saffron-300">
+                <a href={`mailto:${email}`} className="link-underline transition-colors hover:text-saffron-300">
                   {email}
                 </a>
               </p>
@@ -176,7 +176,7 @@ export default function Footer({
                     href={settings.developerUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-semibold text-saffron-400 hover:underline"
+                    className="link-underline font-semibold text-saffron-400"
                   >
                     {settings.developerName}
                   </a>
