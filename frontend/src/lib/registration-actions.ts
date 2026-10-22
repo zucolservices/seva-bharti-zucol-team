@@ -63,7 +63,9 @@ export async function submitRegistration(_prev: RegistrationState, formData: For
   const fieldErrors: RegistrationState["fieldErrors"] = {};
   if (!values.name) fieldErrors.name = { hi: "कृपया अपना नाम लिखें।", en: "Please enter your name." };
   if (!PHONE_RE.test(phone)) fieldErrors.phone = { hi: "कृपया सही फ़ोन नंबर लिखें।", en: "Please enter a valid phone number." };
-  if (values.email && !EMAIL_RE.test(values.email)) fieldErrors.email = { hi: "कृपया सही ई मेल लिखें।", en: "Please enter a valid email." };
+  if (!values.occupation) fieldErrors.occupation = { hi: "कृपया अपना कार्य व्यवसाय लिखें।", en: "Please enter your occupation." };
+  if (!values.address) fieldErrors.address = { hi: "कृपया अपना पता लिखें।", en: "Please enter your address." };
+  if (!EMAIL_RE.test(values.email)) fieldErrors.email = { hi: "कृपया सही ई मेल लिखें।", en: "Please enter a valid email." };
   if (Object.keys(fieldErrors).length > 0) return { status: "error", error: MSG_INVALID, fieldErrors, values };
 
   const headers: Record<string, string> = {
@@ -82,9 +84,9 @@ export async function submitRegistration(_prev: RegistrationState, formData: For
       body: JSON.stringify({
         name: values.name,
         phone,
-        occupation: values.occupation || undefined,
-        address: values.address || undefined,
-        email: values.email || undefined,
+        occupation: values.occupation,
+        address: values.address,
+        email: values.email,
       }),
       cache: "no-store",
       redirect: "manual",

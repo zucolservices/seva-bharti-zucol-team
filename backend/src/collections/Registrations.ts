@@ -32,8 +32,8 @@ export const Registrations: CollectionConfig = {
       validate: (v: unknown) =>
         typeof v === "string" && /^\+?\d{10,13}$/.test(v) ? true : "Enter a valid phone number (10–13 digits).",
     },
-    { name: "occupation", type: "text", maxLength: 200, label: "कार्य व्यवसाय (Occupation)" },
-    { name: "address", type: "textarea", maxLength: 500, label: "पता (Address)" },
-    { name: "email", type: "email", label: "ई मेल (Email)" },
+    { name: "occupation", type: "text", required: true, maxLength: 200, label: "कार्य व्यवसाय (Occupation)" },
+    { name: "address", type: "textarea", required: true, maxLength: 500, label: "पता (Address)" },
+    { name: "email", type: "email", required: true, label: "ई मेल (Email)" },
   ],
 };

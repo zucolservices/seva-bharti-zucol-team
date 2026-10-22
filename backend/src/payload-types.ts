@@ -378,9 +378,9 @@ export interface Registration {
   id: number;
   name: string;
   phone: string;
-  occupation?: string | null;
-  address?: string | null;
-  email?: string | null;
+  occupation: string;
+  address: string;
+  email: string;
   updatedAt: string;
   createdAt: string;
 }

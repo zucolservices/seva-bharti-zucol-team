@@ -23,27 +23,31 @@ type FieldConfig = {
   labelEn: string;
   required?: boolean;
   multiline?: boolean;
+  /** Shares a row with the next half field on desktop. */
+  half?: boolean;
   input?: React.InputHTMLAttributes<HTMLInputElement>;
   maxLength: number;
 };
 
 // Fields in the order the client asked for: नाम, दूरभाष, कार्य व्यवसाय, पता, ई मेल.
 const FIELDS: FieldConfig[] = [
-  { name: "name", labelHi: "नाम", labelEn: "Name", required: true, maxLength: 120, input: { autoComplete: "name" } },
+  { name: "name", labelHi: "नाम", labelEn: "Name", required: true, half: true, maxLength: 120, input: { autoComplete: "name" } },
   {
     name: "phone",
     labelHi: "दूरभाष",
     labelEn: "Phone",
     required: true,
+    half: true,
     maxLength: 20,
     input: { type: "tel", inputMode: "tel", autoComplete: "tel" },
   },
-  { name: "occupation", labelHi: "कार्य व्यवसाय", labelEn: "Occupation", maxLength: 200, input: { autoComplete: "organization-title" } },
-  { name: "address", labelHi: "पता", labelEn: "Address", multiline: true, maxLength: 500 },
+  { name: "occupation", labelHi: "कार्य व्यवसाय", labelEn: "Occupation", required: true, maxLength: 200, input: { autoComplete: "organization-title" } },
+  { name: "address", labelHi: "पता", labelEn: "Address", required: true, multiline: true, maxLength: 500 },
   {
     name: "email",
     labelHi: "ई मेल",
     labelEn: "Email",
+    required: true,
     maxLength: 254,
     input: { type: "email", inputMode: "email", autoComplete: "email" },
   },
@@ -102,14 +106,14 @@ export default function RegistrationForm() {
   const values = state.status === "error" ? state.values : initialState.values;
 
   return (
-    <form key={formKey} action={formAction} className="space-y-5" noValidate>
+    <form key={formKey} action={formAction} className="grid gap-4 lg:grid-cols-2 lg:gap-x-5 lg:gap-y-3.5" noValidate>
       {state.status === "error" && state.error && (
         <div
           ref={errorRef}
           id="registration-error"
           role="alert"
           tabIndex={-1}
-          className="flex gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 outline-none"
+          className="flex gap-3 rounded-lg border border-red-200 lg:col-span-2 bg-red-50 px-4 py-3 text-sm text-red-800 outline-none"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="mt-0.5 shrink-0">
             <circle cx="12" cy="12" r="9" />
@@ -142,7 +146,7 @@ export default function RegistrationForm() {
           className: inputClass,
         };
         return (
-          <div key={f.name}>
+          <div key={f.name} className={f.half ? undefined : "lg:col-span-2"}>
             {/* Each part stays on one line; the parts wrap as whole units on narrow screens. */}
             <label htmlFor={id} className="flex flex-wrap items-baseline gap-x-1.5 text-sm text-ink">
               <span lang="hi" className="whitespace-nowrap font-semibold">
@@ -155,13 +159,8 @@ export default function RegistrationForm() {
                 )}
               </span>
               <span className="whitespace-nowrap text-ink-soft">({f.labelEn})</span>
-              {!f.required && (
-                <span className="whitespace-nowrap text-xs text-ink-soft/80">
-                  <span lang="hi">वैकल्पिक</span> · optional
-                </span>
-              )}
             </label>
-            {f.multiline ? <textarea rows={3} {...common} /> : <input type="text" {...f.input} {...common} />}
+            {f.multiline ? <textarea rows={3} {...common} className={`${inputClass} lg:h-[4.5rem]`} /> : <input type="text" {...f.input} {...common} />}
             {error && (
               <p id={`${id}-error`} className="mt-1.5 flex flex-wrap gap-x-1.5 text-sm text-red-700">
                 <span lang="hi" className="font-medium">{error.hi}</span>
@@ -176,7 +175,7 @@ export default function RegistrationForm() {
         type="submit"
         disabled={pending}
         aria-disabled={pending}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-saffron-500 px-6 py-3 font-semibold text-ink shadow-lg shadow-saffron-500/25 transition-colors hover:bg-saffron-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-saffron-600 disabled:cursor-wait disabled:opacity-70"
+        className="mt-1 flex w-full items-center justify-center gap-2 rounded-lg bg-saffron-500 px-6 py-3 lg:col-span-2 font-semibold text-ink shadow-lg shadow-saffron-500/25 transition-colors hover:bg-saffron-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-saffron-600 disabled:cursor-wait disabled:opacity-70"
       >
         {pending && (
           <span aria-hidden className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
