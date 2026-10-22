@@ -54,7 +54,7 @@ export default function RegistrationForm() {
   // Bumped on "fill another" so the form remounts with empty fields.
   const [formKey, setFormKey] = useState(0);
   const [showForm, setShowForm] = useState(true);
-  const errorRef = useRef<HTMLParagraphElement>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
   const doneRef = useRef<HTMLDivElement>(null);
 
   // Move focus to the result so keyboard and screen-reader users hear it.
@@ -73,25 +73,27 @@ export default function RegistrationForm() {
         ref={doneRef}
         role="status"
         tabIndex={-1}
-        className="rounded-xl border border-green-200 bg-green-50 px-5 py-6 text-center outline-none"
+        className="rounded-xl border border-green-200 bg-green-50 px-5 py-7 text-center outline-none"
       >
-        <span
-          aria-hidden
-          className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-600 text-2xl text-white"
-        >
-          ✓
+        <span aria-hidden className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-600 text-white">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 12.5l4.5 4.5L19 7.5" />
+          </svg>
         </span>
-        <p className="mt-4 text-lg font-bold text-ink">धन्यवाद! आपकी जानकारी सहेज ली गई है।</p>
-        <p className="mt-1 text-sm text-ink-soft">Thank you! Your details have been saved.</p>
+        <p lang="hi" className="mt-4 text-balance text-lg font-bold leading-snug text-ink">
+          धन्यवाद! आपकी जानकारी सहेज ली गई है।
+        </p>
+        <p className="mt-1 text-balance text-sm text-ink-soft">Thank you! Your details have been saved.</p>
         <button
           type="button"
           onClick={() => {
             setFormKey((k) => k + 1);
             setShowForm(true);
           }}
-          className="mt-5 rounded-lg border border-saffron-300 bg-white px-5 py-2.5 text-sm font-semibold text-saffron-700 transition-colors hover:bg-saffron-50"
+          className="mt-5 inline-flex flex-wrap items-baseline justify-center gap-x-1.5 rounded-lg border border-saffron-300 bg-white px-5 py-2.5 text-sm font-semibold text-saffron-700 transition-colors hover:bg-saffron-50"
         >
-          एक और फ़ॉर्म भरें (Fill another)
+          <span lang="hi" className="whitespace-nowrap">एक और फ़ॉर्म भरें</span>
+          <span className="whitespace-nowrap font-normal">(Fill another)</span>
         </button>
       </div>
     );
@@ -102,15 +104,22 @@ export default function RegistrationForm() {
   return (
     <form key={formKey} action={formAction} className="space-y-5" noValidate>
       {state.status === "error" && state.error && (
-        <p
+        <div
           ref={errorRef}
           id="registration-error"
           role="alert"
           tabIndex={-1}
-          className="rounded-lg border-l-4 border-red-500 bg-red-50 px-4 py-3 text-sm font-medium text-red-800"
+          className="flex gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 outline-none"
         >
-          {state.error}
-        </p>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="mt-0.5 shrink-0">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7.5v5.5M12 16.5h.01" />
+          </svg>
+          <p className="text-pretty">
+            <span lang="hi" className="block font-semibold">{state.error.hi}</span>
+            <span className="block">{state.error.en}</span>
+          </p>
+        </div>
       )}
 
       {/* Honeypot for bots: hidden from people and screen readers. */}
@@ -134,21 +143,29 @@ export default function RegistrationForm() {
         };
         return (
           <div key={f.name}>
-            <label htmlFor={id} className="block text-sm font-semibold text-ink">
-              <span lang="hi">{f.labelHi}</span>{" "}
-              <span className="font-normal text-ink-soft">({f.labelEn})</span>
-              {f.required ? (
-                <span aria-hidden className="ml-0.5 text-red-600">
-                  *
+            {/* Each part stays on one line; the parts wrap as whole units on narrow screens. */}
+            <label htmlFor={id} className="flex flex-wrap items-baseline gap-x-1.5 text-sm text-ink">
+              <span lang="hi" className="whitespace-nowrap font-semibold">
+                {f.labelHi}
+                {f.required && (
+                  <>
+                    <span aria-hidden className="ml-0.5 text-red-600">*</span>
+                    <span className="sr-only"> (आवश्यक / required)</span>
+                  </>
+                )}
+              </span>
+              <span className="whitespace-nowrap text-ink-soft">({f.labelEn})</span>
+              {!f.required && (
+                <span className="whitespace-nowrap text-xs text-ink-soft/80">
+                  <span lang="hi">वैकल्पिक</span> · optional
                 </span>
-              ) : (
-                <span className="ml-1 text-xs font-normal text-ink-soft">— वैकल्पिक (optional)</span>
               )}
             </label>
             {f.multiline ? <textarea rows={3} {...common} /> : <input type="text" {...f.input} {...common} />}
             {error && (
-              <p id={`${id}-error`} className="mt-1.5 text-sm text-red-700">
-                {error}
+              <p id={`${id}-error`} className="mt-1.5 flex flex-wrap gap-x-1.5 text-sm text-red-700">
+                <span lang="hi" className="font-medium">{error.hi}</span>
+                <span>{error.en}</span>
               </p>
             )}
           </div>
@@ -164,7 +181,10 @@ export default function RegistrationForm() {
         {pending && (
           <span aria-hidden className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
         )}
-        {pending ? "जमा हो रहा है… (Submitting…)" : "जमा करें (Submit)"}
+        <span className="flex flex-wrap items-baseline justify-center gap-x-1.5">
+          <span lang="hi">{pending ? "जमा हो रहा है…" : "जमा करें"}</span>
+          <span className="font-normal">{pending ? "(Submitting…)" : "(Submit)"}</span>
+        </span>
       </button>
     </form>
   );

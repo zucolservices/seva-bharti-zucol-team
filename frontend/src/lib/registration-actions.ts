@@ -11,10 +11,13 @@ import { getVisitorIp } from "@/lib/portal-auth";
 export type RegistrationField = "name" | "phone" | "occupation" | "address" | "email";
 export type RegistrationValues = Record<RegistrationField, string>;
 
+/** A message in both languages; the form shows Hindi first, English below. */
+export type BilingualMessage = { hi: string; en: string };
+
 export type RegistrationState = {
   status: "idle" | "success" | "error";
-  error: string | null;
-  fieldErrors: Partial<Record<RegistrationField, string>>;
+  error: BilingualMessage | null;
+  fieldErrors: Partial<Record<RegistrationField, BilingualMessage>>;
   values: RegistrationValues;
 };
 
@@ -26,9 +29,12 @@ const MAX_LENGTH: Record<RegistrationField, number> = { name: 120, phone: 20, oc
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^\+?\d{10,13}$/;
 
-const MSG_INVALID = "कृपया लाल रंग में दिखाई गई जानकारी ठीक करें। (Please correct the highlighted fields.)";
-const MSG_RATE_LIMITED = "बहुत अधिक प्रयास। कृपया कुछ देर बाद पुनः प्रयास करें। (Too many attempts. Please try again later.)";
-const MSG_UNAVAILABLE = "अभी फ़ॉर्म जमा नहीं हो सका। कृपया कुछ देर बाद पुनः प्रयास करें। (The form could not be submitted right now. Please try again later.)";
+const MSG_INVALID = { hi: "कृपया लाल रंग में दिखाई गई जानकारी ठीक करें।", en: "Please correct the highlighted fields." };
+const MSG_RATE_LIMITED = { hi: "बहुत अधिक प्रयास। कृपया कुछ देर बाद पुनः प्रयास करें।", en: "Too many attempts. Please try again later." };
+const MSG_UNAVAILABLE = {
+  hi: "अभी फ़ॉर्म जमा नहीं हो सका। कृपया कुछ देर बाद पुनः प्रयास करें।",
+  en: "The form could not be submitted right now. Please try again later.",
+};
 
 const EMPTY: RegistrationValues = { name: "", phone: "", occupation: "", address: "", email: "" };
 
@@ -55,9 +61,9 @@ export async function submitRegistration(_prev: RegistrationState, formData: For
 
   const phone = values.phone.replace(/[\s\-().]/g, "");
   const fieldErrors: RegistrationState["fieldErrors"] = {};
-  if (!values.name) fieldErrors.name = "कृपया अपना नाम लिखें। (Please enter your name.)";
-  if (!PHONE_RE.test(phone)) fieldErrors.phone = "कृपया सही फ़ोन नंबर लिखें। (Please enter a valid phone number.)";
-  if (values.email && !EMAIL_RE.test(values.email)) fieldErrors.email = "कृपया सही ई मेल लिखें। (Please enter a valid email.)";
+  if (!values.name) fieldErrors.name = { hi: "कृपया अपना नाम लिखें।", en: "Please enter your name." };
+  if (!PHONE_RE.test(phone)) fieldErrors.phone = { hi: "कृपया सही फ़ोन नंबर लिखें।", en: "Please enter a valid phone number." };
+  if (values.email && !EMAIL_RE.test(values.email)) fieldErrors.email = { hi: "कृपया सही ई मेल लिखें।", en: "Please enter a valid email." };
   if (Object.keys(fieldErrors).length > 0) return { status: "error", error: MSG_INVALID, fieldErrors, values };
 
   const headers: Record<string, string> = {
