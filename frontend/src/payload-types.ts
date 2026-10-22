@@ -370,7 +370,7 @@ export interface Event {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * Entries submitted through the registration form on the website (/register).
+ * Entries submitted through the registration form on the website (/form).
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "registrations".

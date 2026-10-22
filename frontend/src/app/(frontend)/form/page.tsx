@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import RegistrationForm from "@/components/RegistrationForm";
 
 // Public registration form, mainly reached by QR code (context/2.0/
-// Sewa_Bharti_Registration_QR.png). Entries are saved in the CMS under
+// Sewa_Bharti_Form_QR.png). Entries are saved in the CMS under
 // Forms → Registrations. Not in the menu.
 export const metadata: Metadata = {
   title: "Registration Form",
   description: "Sewa Bharti Samiti Rajasthan registration form.",
 };
 
-export default function RegisterPage() {
+export default function FormPage() {
   return (
     <section className="bg-gradient-to-br from-saffron-50 via-cream to-sewablue-50">
       <div className="container-page flex justify-center py-10 md:py-16">

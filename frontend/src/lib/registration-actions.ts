@@ -2,7 +2,7 @@
 
 import { getVisitorIp } from "@/lib/portal-auth";
 
-// Server Action for the public registration form (/register). The browser
+// Server Action for the public registration form (/form). The browser
 // never talks to the CMS: this action re-validates the input and saves it to
 // the CMS `registrations` collection with the shared frontend key, forwarding
 // the visitor IP so the CMS rate-limits per visitor (5 entries / 10 min).

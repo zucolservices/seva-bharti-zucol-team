@@ -138,7 +138,7 @@ export async function Dashboard({ payload, user }: ServerProps) {
         {
           titleHi: "पंजीकरण",
           titleEn: "Registrations",
-          description: "Entries from the registration form on the website (/register).",
+          description: "Entries from the registration form on the website (/form).",
           path: "/collections/registrations",
         },
         {

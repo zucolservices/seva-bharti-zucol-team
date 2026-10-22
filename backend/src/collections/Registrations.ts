@@ -1,7 +1,7 @@
 import type { CollectionConfig } from "payload";
 import { fromFrontendServer, isAdmin, isAdminOrEditor } from "@/access";
 
-// Entries from the public registration form (website /register, reached by
+// Entries from the public registration form (website /form, reached by
 // QR code). Visitors never call the CMS directly: the website's server
 // submits on their behalf with the shared frontend key, so anonymous API
 // writes are refused. Personal data — staff can read, only admins edit/delete.
@@ -12,7 +12,7 @@ export const Registrations: CollectionConfig = {
     group: "Forms",
     useAsTitle: "name",
     defaultColumns: ["name", "phone", "occupation", "email", "createdAt"],
-    description: "Entries submitted through the registration form on the website (/register).",
+    description: "Entries submitted through the registration form on the website (/form).",
   },
   defaultSort: "-createdAt",
   access: {
