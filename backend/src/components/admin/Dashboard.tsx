@@ -136,6 +136,12 @@ export async function Dashboard({ payload, user }: ServerProps) {
           stat: counts.media !== null ? plural(counts.media, "file", "files") : null,
         },
         {
+          titleHi: "पंजीकरण",
+          titleEn: "Registrations",
+          description: "Entries from the registration form on the website (/register).",
+          path: "/collections/registrations",
+        },
+        {
           titleHi: "फ़ोटो अपलोड करें",
           titleEn: "Upload photo",
           description: "Add a new photo (max 5 MB). Remember to fill in the description.",

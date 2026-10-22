@@ -71,6 +71,7 @@ export interface Config {
     pillars: Pillar;
     events: Event;
     media: Media;
+    registrations: Registration;
     users: User;
     'portal-users': PortalUser;
     'payload-kv': PayloadKv;
@@ -83,6 +84,7 @@ export interface Config {
     pillars: PillarsSelect<false> | PillarsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    registrations: RegistrationsSelect<false> | RegistrationsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'portal-users': PortalUsersSelect<false> | PortalUsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -367,6 +369,22 @@ export interface Event {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Entries submitted through the registration form on the website (/register).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "registrations".
+ */
+export interface Registration {
+  id: number;
+  name: string;
+  phone: string;
+  occupation?: string | null;
+  address?: string | null;
+  email?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
@@ -460,6 +478,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'registrations';
+        value: number | Registration;
       } | null)
     | ({
         relationTo: 'users';
@@ -664,6 +686,19 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "registrations_select".
+ */
+export interface RegistrationsSelect<T extends boolean = true> {
+  name?: T;
+  phone?: T;
+  occupation?: T;
+  address?: T;
+  email?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

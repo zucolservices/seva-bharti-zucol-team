@@ -4,6 +4,7 @@ import * as migration_20261021_065312_portal_users from './20261021_065312_porta
 import * as migration_20261021_093909_page_content from './20261021_093909_page_content';
 import * as migration_20261021_100220_sewa_geet_image from './20261021_100220_sewa_geet_image';
 import * as migration_20261021_100639_video_thumbnail from './20261021_100639_video_thumbnail';
+import * as migration_20261022_152920_registrations from './20261022_152920_registrations';
 
 export const migrations = [
   {
@@ -34,6 +35,11 @@ export const migrations = [
   {
     up: migration_20261021_100639_video_thumbnail.up,
     down: migration_20261021_100639_video_thumbnail.down,
-    name: '20261021_100639_video_thumbnail'
+    name: '20261021_100639_video_thumbnail',
+  },
+  {
+    up: migration_20261022_152920_registrations.up,
+    down: migration_20261022_152920_registrations.down,
+    name: '20261022_152920_registrations'
   },
 ];

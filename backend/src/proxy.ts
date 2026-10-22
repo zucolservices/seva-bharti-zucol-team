@@ -24,6 +24,8 @@ const RULES: Rule[] = [
     limit: 10,
     windowMs: 15 * MIN,
   },
+  // Public registration form (submitted by the frontend server, limited per visitor).
+  { name: "form", test: (p, m) => m === "POST" && p === "/api/registrations", limit: 5, windowMs: 10 * MIN },
   // Uploads — moderate.
   { name: "upload", test: (p, m) => m !== "GET" && p.startsWith("/api/media"), limit: 60, windowMs: 10 * MIN },
   // Admin panel server functions (form state refreshes while typing) — generous.
@@ -96,7 +98,8 @@ function isFrontendServer(req: NextRequest): boolean {
   return timingSafeEqual(sha256(given), sha256(expected));
 }
 
-// Portal logins (/api/portal-users/*) are proxied by the frontend server, so
+// Portal logins (/api/portal-users/*) and registration form entries
+// (/api/registrations) are proxied by the frontend server, so
 // they all arrive from its single IP. When the request carries a valid
 // x-frontend-key, the frontend forwards the real visitor IP in
 // x-portal-client-ip and we limit per visitor instead. Only a plausible IP
@@ -117,7 +120,8 @@ export function proxy(req: NextRequest) {
   if ((method === "GET" || method === "HEAD") && path.startsWith("/api/media/file/")) return NextResponse.next();
   const rule = RULES.find((r) => r.test(path, method));
   if (!rule) return NextResponse.next();
-  const isPortal = path === "/api/portal-users" || path.startsWith("/api/portal-users/");
+  const isPortal =
+    path === "/api/portal-users" || path.startsWith("/api/portal-users/") || path === "/api/registrations";
   // Frontend server content reads are exempt; portal account requests (e.g.
   // /me) are not — they stay limited per visitor IP.
   if (rule.name === "read" && !isPortal && (method === "GET" || method === "HEAD") && isFrontendServer(req)) {

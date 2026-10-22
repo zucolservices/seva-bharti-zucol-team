@@ -10,6 +10,7 @@ import sharp from "sharp";
 
 import { Users } from "./collections/Users";
 import { PortalUsers } from "./collections/PortalUsers";
+import { Registrations } from "./collections/Registrations";
 import { Media } from "./collections/Media";
 import { Pillars } from "./collections/Pillars";
 import { Events } from "./collections/Events";
@@ -84,7 +85,7 @@ export default buildConfig({
       providers: ["/components/admin/PasswordToggle#PasswordToggle"],
     },
   },
-  collections: [Pillars, Events, Media, Users, PortalUsers],
+  collections: [Pillars, Events, Media, Registrations, Users, PortalUsers],
   // Locked accounts must not be distinguishable from a wrong password
   // (prevents confirming which staff emails exist).
   i18n: {

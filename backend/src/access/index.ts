@@ -1,3 +1,4 @@
+import { createHash, timingSafeEqual } from "node:crypto";
 import type { Access, FieldAccess, PayloadRequest } from "payload";
 
 // Role-based access helpers. Every collection/global MUST use these —
@@ -48,3 +49,14 @@ export const publishedOrStaff: Access = ({ req }) => {
 };
 
 export const anyone: Access = () => true;
+
+// The public website's server (x-frontend-key = FRONTEND_API_KEY). Used for
+// writes that visitors make through the site (e.g. the registration form):
+// the browser never talks to the CMS, so anonymous API calls stay blocked.
+const sha256 = (s: string) => createHash("sha256").update(s).digest();
+export const fromFrontendServer: Access = ({ req }) => {
+  const expected = process.env.FRONTEND_API_KEY;
+  const given = req.headers?.get("x-frontend-key");
+  if (!expected || !given) return false;
+  return timingSafeEqual(sha256(given), sha256(expected));
+};

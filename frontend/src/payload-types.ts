@@ -72,6 +72,7 @@ export interface Config {
     pillars: Pillar;
     events: Event;
     media: Media;
+    registrations: Registration;
     users: User;
     'portal-users': PortalUser;
     'payload-kv': PayloadKv;
@@ -84,6 +85,7 @@ export interface Config {
     pillars: PillarsSelect<false> | PillarsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    registrations: RegistrationsSelect<false> | RegistrationsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'portal-users': PortalUsersSelect<false> | PortalUsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -368,6 +370,22 @@ export interface Event {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Entries submitted through the registration form on the website (/register).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "registrations".
+ */
+export interface Registration {
+  id: number;
+  name: string;
+  phone: string;
+  occupation?: string | null;
+  address?: string | null;
+  email?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
@@ -461,6 +479,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'registrations';
+        value: number | Registration;
       } | null)
     | ({
         relationTo: 'users';
@@ -665,6 +687,19 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "registrations_select".
+ */
+export interface RegistrationsSelect<T extends boolean = true> {
+  name?: T;
+  phone?: T;
+  occupation?: T;
+  address?: T;
+  email?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -885,7 +920,7 @@ export interface HomePage {
     title: string;
     intro?: string | null;
     /**
-     * Large picture on the right of the home-page hero. Recommended: 1280 × 880 px (landscape, about 3:2), PNG or WebP, under 1.5 MB. Soft, faded edges blend best into the page background. It is shown up to about 1000 px wide on large screens. Falls back to the site logo when empty.
+     * Large picture on the right of the home-page hero. Resolution: 1280 × 880 px recommended (landscape, about 3:2); minimum 960 × 660 px (smaller looks blurry on large screens); anything above 2560 px wide is shrunk automatically. PNG or WebP, under 1.5 MB. Soft, faded edges blend best into the page background. Shown up to about 1000 px wide on large screens. Falls back to the site logo when empty. Upload limits: max 5 MB, max 40 megapixels, JPG/PNG/WebP/AVIF only.
      */
     image?: (number | null) | Media;
     primaryCta?: {
@@ -971,7 +1006,7 @@ export interface HomePage {
      */
     videoUrl?: string | null;
     /**
-     * Picture shown instead of the video; visitors click it to play the video. Recommended: 1280 × 720 px (16:9 landscape), JPG, PNG or WebP, under 500 KB. Leave empty to use the video's own YouTube thumbnail.
+     * Picture shown instead of the video; visitors click it to play the video. Resolution: 1280 × 720 px recommended (16:9 landscape); minimum 640 × 360 px; other shapes are cropped to 16:9. JPG, PNG or WebP, under 500 KB. Leave empty to use the video's own YouTube thumbnail. Upload limits: max 5 MB, max 40 megapixels, JPG/PNG/WebP/AVIF only.
      */
     videoThumbnail?: (number | null) | Media;
     /**
@@ -1271,7 +1306,7 @@ export interface HomeContent {
         }[]
       | null;
     /**
-     * Image shown beside the Objective text. Recommended: about 1084 × 1109 px (nearly square), PNG or WebP, under 1 MB; keep the logo centred with some margin. Leave empty to keep the current image.
+     * Image shown beside the Objective text. Resolution: about 1084 × 1109 px recommended (nearly square); minimum 600 × 600 px. PNG or WebP, under 1 MB; keep the logo centred with some margin. Leave empty to keep the current image. Upload limits: max 5 MB, max 40 megapixels, JPG/PNG/WebP/AVIF only.
      */
     image?: (number | null) | Media;
     /**
@@ -1837,7 +1872,7 @@ export interface PartnersContent {
          */
         name?: string | null;
         /**
-         * Optional. Leave empty to keep the default logo for this name. Recommended: transparent PNG/WebP or SVG-quality image, wide logos about 600 × 200 px, round emblems about 400 × 400 px, under 300 KB. Four logos are shown per row.
+         * Optional. Leave empty to keep the default logo for this name. Recommended: transparent PNG/WebP or SVG-quality image, resolution: wide logos about 600 × 200 px, round emblems about 400 × 400 px (minimum half of that), under 300 KB. Four logos are shown per row. Upload limits: max 5 MB, max 40 megapixels, JPG/PNG/WebP/AVIF only.
          */
         logo?: (number | null) | Media;
         /**
