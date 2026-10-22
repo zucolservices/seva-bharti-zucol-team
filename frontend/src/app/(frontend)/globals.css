@@ -117,3 +117,57 @@ button:focus-visible,
   padding-inline: 1.25rem;
 }
 
+
+/* ---- Header menu ---------------------------------------------------- */
+/* Desktop links: a saffron underline grows from the centre on hover and
+   stays full under the current page / open dropdown. */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0.625rem;
+  right: 0.625rem;
+  bottom: 0.2rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-saffron-500);
+  transform: scaleX(0);
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-link:hover::after,
+.nav-link[aria-expanded="true"]::after,
+.nav-link[data-active="true"]::after {
+  transform: scaleX(1);
+}
+
+@keyframes nav-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+}
+.nav-drop {
+  transform-origin: top;
+  animation: nav-drop 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes nav-panel {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+.nav-panel {
+  animation: nav-panel 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-link::after,
+  .nav-drop,
+  .nav-panel {
+    transition: none;
+    animation: none;
+  }
+}

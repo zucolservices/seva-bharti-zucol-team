@@ -78,6 +78,9 @@ export function HeaderView({
 }: HeaderData & { pathname: string | null }) {
   const [open, setOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  // Compact header once the page is scrolled. Two thresholds (hysteresis) so
+  // the height change itself can't flip the state back and forth.
+  const [scrolled, setScrolled] = useState(false);
   const dropdownRefs = useRef(new Map<string, HTMLLIElement>());
   const dropdownButtonRefs = useRef(new Map<string, HTMLButtonElement>());
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -98,6 +101,13 @@ export function HeaderView({
   // (matches the original layout).
   const firstDropdown = items.findIndex((i) => i.children.length > 0);
   const mobileGap = (i: number) => (firstDropdown !== -1 && i >= firstDropdown ? "mt-1" : undefined);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled((was) => (was ? window.scrollY > 24 : window.scrollY > 96));
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Close the desktop dropdown on route change and outside clicks.
   useEffect(() => {
@@ -152,16 +162,15 @@ export function HeaderView({
     };
   }, [open]);
 
+  // `nav-link` (globals.css) draws the hover / current-page underline.
   const linkClass = (active: boolean) =>
-    `whitespace-nowrap rounded-md px-2 py-2 text-sm font-medium transition-colors ${
-      active
-        ? "bg-saffron-100 text-saffron-800"
-        : "text-ink hover:bg-saffron-50 hover:text-saffron-700"
+    `nav-link whitespace-nowrap rounded-md px-2.5 py-2.5 text-sm font-medium transition-colors ${
+      active ? "text-saffron-700" : "text-ink hover:text-saffron-700 aria-expanded:text-saffron-700"
     }`;
 
   const mobileLinkClass = (active: boolean) =>
-    `block rounded-md px-3 py-3 text-sm font-medium ${
-      active ? "bg-saffron-100 text-saffron-800" : "text-ink hover:bg-saffron-50"
+    `block rounded-lg px-3 py-3 text-[15px] font-medium transition-colors ${
+      active ? "bg-saffron-50 font-semibold text-saffron-800" : "text-ink hover:bg-saffron-50 hover:text-saffron-700"
     }`;
 
   // Desktop: "utility" items (Login) are shown in the top bar instead.
@@ -188,7 +197,8 @@ export function HeaderView({
           aria-expanded={openDropdown === item.id}
           aria-controls={`${idPrefix}-dropdown-${idx}`}
           onClick={() => setOpenDropdown((v) => (v === item.id ? null : item.id))}
-          className={`flex items-center gap-0.5 ${linkClass(groupActive(item.children))}`}
+          data-active={groupActive(item.children) || undefined}
+          className={`flex items-center gap-1 ${linkClass(groupActive(item.children))}`}
         >
           {item.label}
           <svg
@@ -199,7 +209,7 @@ export function HeaderView({
             stroke="currentColor"
             strokeWidth="2.5"
             aria-hidden="true"
-            className={`transition-transform ${openDropdown === item.id ? "rotate-180" : ""}`}
+            className={`opacity-70 transition-transform duration-200 ${openDropdown === item.id ? "rotate-180" : ""}`}
           >
             <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -207,23 +217,37 @@ export function HeaderView({
         {openDropdown === item.id && (
           // Click-to-open dropdown; pt-1 gives a small visual gap.
           // Items near the right edge open leftwards to stay on screen.
-          <div className={`absolute top-full pt-1 ${alignRight ? "right-0" : "left-0"}`}>
+          <div className={`nav-drop absolute top-full pt-2 ${alignRight ? "right-0" : "left-0"}`}>
             <ul
               id={`${idPrefix}-dropdown-${idx}`}
-              className="min-w-52 whitespace-nowrap rounded-lg border border-saffron-100 bg-white py-2 shadow-lg">
+              className="min-w-60 whitespace-nowrap rounded-xl border border-saffron-100 bg-white p-1.5 shadow-[0_16px_36px_-14px_rgba(95,50,10,0.3)]">
               {item.children.map((c) => (
                 <li key={c.label}>
                   <MenuLink
                     href={c.href}
                     onClick={() => setOpenDropdown(null)}
                     current={isActive(c.href)}
-                    className={`block px-4 py-2 text-sm font-medium transition-colors ${
+                    className={`group/item flex items-center justify-between gap-6 whitespace-nowrap rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                       isActive(c.href)
                         ? "bg-saffron-50 text-saffron-800"
                         : "text-ink hover:bg-saffron-50 hover:text-saffron-700"
                     }`}
                   >
                     {c.label}
+                    {!isExternal(c.href) && (
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        aria-hidden="true"
+                        className="-translate-x-1 text-saffron-600 opacity-0 transition-all duration-200 group-hover/item:translate-x-0 group-hover/item:opacity-100"
+                      >
+                        <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
                   </MenuLink>
                 </li>
               ))}
@@ -236,6 +260,7 @@ export function HeaderView({
         <Link
           href={item.href}
           aria-current={isActive(item.href) ? "page" : undefined}
+          data-active={isActive(item.href) || undefined}
           className={linkClass(isActive(item.href))}
         >
           {item.label}
@@ -244,8 +269,18 @@ export function HeaderView({
     ) : null;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-saffron-100 bg-white/95 backdrop-blur">
-      <div className="container-wide flex items-center justify-between gap-3 py-4">
+    <header
+      className={`sticky top-0 z-50 border-b transition-[background-color,box-shadow,border-color] duration-300 ${
+        scrolled || open
+          ? "border-saffron-100/70 bg-white/90 shadow-[0_8px_24px_-16px_rgba(95,50,10,0.35)] backdrop-blur-md"
+          : "border-saffron-100 bg-white"
+      }`}
+    >
+      <div
+        className={`container-wide flex items-center justify-between gap-3 transition-[padding] duration-300 ${
+          scrolled ? "py-2" : "py-4"
+        }`}
+      >
         <Link
           href="/"
           className="flex min-w-0 items-center gap-3"
@@ -257,7 +292,7 @@ export function HeaderView({
             width={68}
             height={75}
             priority
-            className="h-16 w-auto shrink-0"
+            className={`w-auto shrink-0 transition-[height] duration-300 ${scrolled ? "h-12" : "h-16"}`}
           />
           <span className="leading-tight">
             {brandTitle && (
@@ -275,7 +310,7 @@ export function HeaderView({
 
         {/* Desktop menu (Login and Donate are in the top bar on desktop). */}
         <nav aria-label="Primary" className="hidden xl:block">
-          <ul className="flex items-center">
+          <ul className="flex items-center gap-0.5">
             {mainItems.map((item, idx) => desktopItem(item, idx, idx >= mainItems.length - 2))}
           </ul>
         </nav>
@@ -287,7 +322,7 @@ export function HeaderView({
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-controls="mobile-nav"
-          className="rounded-md p-2 text-ink hover:bg-saffron-50 xl:hidden"
+          className="rounded-lg border border-saffron-100 p-2 text-ink transition-colors hover:border-saffron-200 hover:bg-saffron-50 xl:hidden"
         >
           <span className="sr-only">{open ? a11y.menuClose : a11y.menuOpen}</span>
           <svg
@@ -316,16 +351,16 @@ export function HeaderView({
           aria-label="Primary mobile"
           // max-height is set from the panel's measured top (see above); the
           // class is only the pre-measure fallback.
-          className="max-h-[calc(100dvh-6.25rem)] overflow-y-auto overscroll-contain border-t border-saffron-100 bg-white xl:hidden"
+          className="nav-panel max-h-[calc(100dvh-6.25rem)] overflow-y-auto overscroll-contain border-t border-saffron-100 bg-white xl:hidden"
         >
           <ul className="container-page flex flex-col py-2">
             {items.map((item, i) =>
               item.children.length > 0 ? (
                 <li key={item.id} className={mobileGap(i)}>
-                  <p className="px-3 pt-2 text-sm font-semibold text-saffron-700">
+                  <p className="px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wider text-saffron-700">
                     {item.label}
                   </p>
-                  <ul className="border-l border-saffron-100 pl-3">
+                  <ul className="ml-3 border-l border-saffron-200 pl-2">
                     {item.children.map((c) => (
                       <li key={c.label}>
                         <MenuLink
@@ -358,7 +393,7 @@ export function HeaderView({
                 <Link
                   href={cta.href}
                   onClick={() => setOpen(false)}
-                  className="block rounded-lg bg-saffron-500 px-3 py-3 text-center text-sm font-semibold text-ink hover:bg-saffron-600"
+                  className="block rounded-lg bg-saffron-500 px-3 py-3 text-center text-[15px] font-semibold text-ink shadow-md shadow-saffron-500/25 transition-colors hover:bg-saffron-600"
                 >
                   {cta.label}
                 </Link>
