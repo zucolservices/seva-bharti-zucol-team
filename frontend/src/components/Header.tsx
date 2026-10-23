@@ -162,6 +162,22 @@ export function HeaderView({
     };
   }, [open]);
 
+  // Logo: always land at the very top of the home page. On "/" a Link to the
+  // same URL does nothing, so scroll up ourselves; from another page jump to
+  // the top first, otherwise Next only scrolls the new page's content into
+  // view and stops just below the top bar.
+  const goHomeTop = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    setOpen(false);
+    if (pathname === "/") {
+      e.preventDefault();
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+  };
+
   // `nav-link` (globals.css) draws the hover / current-page underline.
   const linkClass = (active: boolean) =>
     `nav-link whitespace-nowrap rounded-md px-2.5 py-2.5 text-sm font-medium transition-colors ${
@@ -283,6 +299,7 @@ export function HeaderView({
       >
         <Link
           href="/"
+          onClick={goHomeTop}
           className="flex min-w-0 items-center gap-3"
           aria-label={siteName ? `${siteName} — ${a11y.homeLinkLabel}` : a11y.homeLinkLabel}
         >
