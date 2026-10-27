@@ -20,10 +20,11 @@ const globalBase = (slug: string) => ({
   hooks: { afterChange: [revalidateGlobal(`global:${slug}`, "globals")] },
 });
 
-const ctaField = (name: string, label: string): Field => ({
+const ctaField = (name: string, label: string, hidden = false): Field => ({
   name,
   type: "group",
   label,
+  ...(hidden ? { admin: { hidden: true } } : {}),
   fields: [
     { name: "label", type: "text", maxLength: 80 },
     hrefField(),
@@ -221,8 +222,36 @@ export const HomePage: GlobalConfig = {
               "Large picture on the right of the home-page hero. Resolution: 1280 × 880 px recommended (landscape, about 3:2); minimum 960 × 660 px (smaller looks blurry on large screens); anything above 2560 px wide is shrunk automatically. PNG or WebP, under 1.5 MB. Soft, faded edges blend best into the page background. Shown up to about 1000 px wide on large screens. Falls back to the site logo when empty. Upload limits: max 5 MB, max 40 megapixels, JPG/PNG/WebP/AVIF only.",
           },
         },
-        ctaField("primaryCta", "Primary button"),
-        ctaField("secondaryCta", "Secondary button"),
+        // The hero buttons were removed from the site (23 Oct 2026); the fields
+        // stay hidden so existing data and the DB columns are untouched.
+        ctaField("primaryCta", "Primary button", true),
+        ctaField("secondaryCta", "Secondary button", true),
+        {
+          name: "slides",
+          type: "array",
+          label: "Slider (heading, text, image)",
+          labels: { singular: "Slide", plural: "Slides" },
+          maxRows: 10,
+          admin: {
+            description:
+              "The home-page hero is a slider that changes by itself every few seconds. Add, remove or drag slides to reorder. When empty, the site shows the title/intro/banner above followed by the four Aayaams (from Pillars).",
+            initCollapsed: true,
+            components: { RowLabel: "/components/admin/SlideRowLabel#SlideRowLabel" },
+          },
+          fields: [
+            { name: "heading", type: "text", required: true, maxLength: 120 },
+            { name: "content", type: "textarea", required: true, maxLength: 600, admin: { description: "2–4 lines read best." } },
+            {
+              name: "image",
+              type: "upload",
+              relationTo: "media",
+              admin: {
+                description:
+                  "Shown on the right in a rounded frame (4:3). Resolution: 1200 × 900 px recommended; minimum 800 × 600 px (smaller looks blurry). Landscape photos work best. Upload limits: max 5 MB, max 40 megapixels, JPG/PNG/WebP/AVIF only.",
+              },
+            },
+          ],
+        },
       ],
     },
     {

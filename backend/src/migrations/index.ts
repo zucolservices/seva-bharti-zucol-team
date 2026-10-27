@@ -6,6 +6,7 @@ import * as migration_20261021_100220_sewa_geet_image from './20261021_100220_se
 import * as migration_20261021_100639_video_thumbnail from './20261021_100639_video_thumbnail';
 import * as migration_20261022_152920_registrations from './20261022_152920_registrations';
 import * as migration_20261022_160133_registrations_required from './20261022_160133_registrations_required';
+import * as migration_20261027_082456_hero_slides from './20261027_082456_hero_slides';
 
 export const migrations = [
   {
@@ -46,6 +47,11 @@ export const migrations = [
   {
     up: migration_20261022_160133_registrations_required.up,
     down: migration_20261022_160133_registrations_required.down,
-    name: '20261022_160133_registrations_required'
+    name: '20261022_160133_registrations_required',
+  },
+  {
+    up: migration_20261027_082456_hero_slides.up,
+    down: migration_20261027_082456_hero_slides.down,
+    name: '20261027_082456_hero_slides'
   },
 ];

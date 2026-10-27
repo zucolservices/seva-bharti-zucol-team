@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import DonateSection from "@/components/DonateSection";
 import EventCard from "@/components/EventCard";
 import FeaturedStory from "@/components/FeaturedStory";
+import HeroCarousel, { type HeroSlide } from "@/components/HeroCarousel";
 import ImpactBanner from "@/components/ImpactBanner";
 import SectionDivider from "@/components/SectionDivider";
 import MissionVision from "@/components/MissionVision";
@@ -43,11 +43,32 @@ export default async function HomePage() {
   const heroTitle = hero?.title?.trim() || content.hero.title;
   const heroIntro = hero?.intro?.trim() || content.hero.intro;
   const logo = siteLogo(settings);
-  const heroImage = mediaUrl(hero?.image) ?? logo.url; // original size; next/image resizes
-  const heroAlt = hero?.image ? mediaAlt(hero.image, logo.alt) : logo.alt;
-  const heroMedia = hero?.image && typeof hero.image === "object" ? hero.image : null;
-  const primary = hero?.primaryCta;
-  const secondary = hero?.secondaryCta;
+  // Slider: the CMS slides; until any are added, the hero title/intro/banner
+  // followed by one slide per Aayaam (pillar name, summary, banner).
+  const slideImage = (m: unknown, fallbackAlt: string): HeroSlide["image"] => {
+    const url = mediaUrl(m as Parameters<typeof mediaUrl>[0]);
+    if (!url || !m || typeof m !== "object") return null;
+    const media = m as { width?: number | null; height?: number | null };
+    return { url, alt: mediaAlt(m as Parameters<typeof mediaAlt>[0], fallbackAlt), width: media.width ?? 1200, height: media.height ?? 800 };
+  };
+  const cmsSlides = (hero?.slides ?? []).map((s) => ({
+    heading: s.heading,
+    content: s.content,
+    image: slideImage(s.image, s.heading),
+  }));
+  const heroSlides: HeroSlide[] =
+    cmsSlides.length > 0
+      ? cmsSlides
+      : [
+          { heading: heroTitle, content: heroIntro, image: slideImage(hero?.image, logo.alt) },
+          ...pillars
+            .map((p) => ({
+              heading: pillarNames(p).title,
+              content: (p.summaryEn || p.summaryHi || "").trim(),
+              image: slideImage(p.banner, pillarNames(p).title),
+            }))
+            .filter((sl) => sl.content),
+        ];
   const stats = home?.stats ?? [];
   // The original seed wording is replaced by the English copy; any other text
   // set in the CMS (Home Page → Events Teaser) is shown as-is.
@@ -66,84 +87,9 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Hero */}
+      {/* Hero slider (Home Page → Hero → Slider). */}
       <section className="overflow-hidden bg-gradient-to-br from-saffron-50 via-cream to-sewablue-50">
-        <div className="container-wide grid items-center gap-10 py-12 md:grid-cols-[1fr_1.3fr] md:gap-8 md:py-16 lg:py-20">
-          <div>
-            {hero?.badge && (
-              <span
-                lang={langOf(hero.badge)}
-                className="inline-flex items-center gap-2 rounded-full border border-saffron-200 bg-white/70 px-3 py-1 text-xs font-semibold text-saffron-700 shadow-sm"
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M12 1 3 5v6c0 5.25 3.75 10.16 9 11 5.25-.84 9-5.75 9-11V5l-9-4Zm-1.2 14.4L7 11.6l1.4-1.4 2.4 2.4 5-5L17.2 9l-6.4 6.4Z" />
-                </svg>
-                {hero.badge}
-              </span>
-            )}
-            {hero?.tagline && (
-              <p
-                lang={langOf(hero.tagline)}
-                className="mt-4 max-w-xl text-lg font-semibold leading-snug text-saffron-700 md:text-xl"
-              >
-                {hero.tagline}
-              </p>
-            )}
-            {/* Team's CMS text (Home Page → Hero) wins; Home Content / built-in text is the fallback. */}
-            <h1 lang={langOf(heroTitle)} className="mt-3 text-4xl font-bold leading-[1.1] tracking-tight text-ink md:text-[2.75rem] xl:text-[3.25rem]">
-              {heroTitle}
-            </h1>
-            <p lang={langOf(heroIntro)} className="mt-5 max-w-xl text-base leading-relaxed text-ink-soft md:text-lg">
-              {heroIntro}
-            </p>
-            {((primary?.label && primary.href) || (secondary?.label && secondary.href)) && (
-              <div className="mt-8 flex flex-wrap gap-4">
-                {primary?.label && primary.href && (
-                  <Link
-                    href={primary.href}
-                    lang={langOf(primary.label)}
-                    className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-b from-saffron-400 to-saffron-500 px-7 py-3.5 text-base font-semibold text-ink shadow-lg shadow-saffron-500/25 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-saffron-500/35 active:translate-y-0"
-                  >
-                    {primary.label}
-                    <span
-                      aria-hidden
-                      className="transition-transform group-hover:translate-x-1"
-                    >
-                      →
-                    </span>
-                  </Link>
-                )}
-                {secondary?.label && secondary.href && (
-                  <Link
-                    href={secondary.href}
-                    lang={langOf(secondary.label)}
-                    className="inline-flex items-center gap-2 rounded-xl border-2 border-sewablue-500 bg-white px-7 py-3.5 text-base font-semibold text-sewablue-700 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-sewablue-500 hover:text-white hover:shadow-lg hover:shadow-sewablue-500/25 active:translate-y-0"
-                  >
-                    {secondary.label}
-                  </Link>
-                )}
-              </div>
-            )}
-          </div>
-          {/* A CMS banner fills the column and, on wide screens, runs to the right
-              edge of the window (its edges are already feathered); the logo
-              fallback stays modest. */}
-          <div
-            className={`flex justify-center md:justify-end ${
-              heroMedia ? "md:-mr-5 xl:-mr-[calc((100vw-80rem)/2+1.25rem)]" : ""
-            }`}
-          >
-            <Image
-              src={heroImage}
-              alt={heroAlt}
-              width={heroMedia?.width ?? 320}
-              height={heroMedia?.height ?? 356}
-              priority
-              sizes="(max-width: 768px) 100vw, 60vw"
-              className={heroMedia ? "h-auto w-full" : "h-auto w-56 drop-shadow-sm md:w-72"}
-            />
-          </div>
-        </div>
+        <HeroCarousel slides={heroSlides} badge={hero?.badge} fallbackImage={logo} />
       </section>
 
       {/* Trust / credentials band */}

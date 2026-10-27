@@ -937,6 +937,23 @@ export interface HomePage {
        */
       href?: string | null;
     };
+    /**
+     * The home-page hero is a slider that changes by itself every few seconds. Add, remove or drag slides to reorder. When empty, the site shows the title/intro/banner above followed by the four Aayaams (from Pillars).
+     */
+    slides?:
+      | {
+          heading: string;
+          /**
+           * 2–4 lines read best.
+           */
+          content: string;
+          /**
+           * Shown on the right in a rounded frame (4:3). Resolution: 1200 × 900 px recommended; minimum 800 × 600 px (smaller looks blurry). Landscape photos work best. Upload limits: max 5 MB, max 40 megapixels, JPG/PNG/WebP/AVIF only.
+           */
+          image?: (number | null) | Media;
+          id?: string | null;
+        }[]
+      | null;
   };
   stats?:
     | {
@@ -2056,6 +2073,14 @@ export interface HomePageSelect<T extends boolean = true> {
           | {
               label?: T;
               href?: T;
+            };
+        slides?:
+          | T
+          | {
+              heading?: T;
+              content?: T;
+              image?: T;
+              id?: T;
             };
       };
   stats?:

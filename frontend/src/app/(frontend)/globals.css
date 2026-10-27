@@ -193,3 +193,13 @@ button:focus-visible,
     animation: none;
   }
 }
+
+/* Home hero slider: the active dot fills over the slide's duration. */
+@keyframes hero-progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
