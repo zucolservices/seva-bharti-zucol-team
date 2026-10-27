@@ -247,7 +247,7 @@ export const HomePage: GlobalConfig = {
               relationTo: "media",
               admin: {
                 description:
-                  "Shown on the right of the slider, landscape 3:2, with softly faded edges. Resolution: 1500 × 1000 px recommended; minimum 960 × 640 px (smaller looks blurry on large screens). Keep the main subject in the centre — the edges fade out and may be cropped. Landscape photos only; portrait photos get cropped top and bottom. Upload limits: max 5 MB, max 40 megapixels, JPG/PNG/WebP/AVIF only.",
+                  "Shown on the right of the slider in a rounded frame, landscape 3:2. Use a normal photo — no fading or editing needed. Resolution: 1500 × 1000 px recommended (exactly 3:2 fits without cropping); minimum 960 × 640 px (smaller looks blurry on large screens). Other shapes are cropped to fill the frame, so keep the main subject in the centre; portrait photos lose their top and bottom. Upload limits: max 5 MB, max 40 megapixels, JPG/PNG/WebP/AVIF only.",
               },
             },
           ],

@@ -5,8 +5,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { langOf } from "@/lib/view-types";
 
 // Home-page hero slider (CMS: Home Page → Hero → Slider). Same layout as the
-// old static hero: text on the left, a soft-edged photo on the right that
-// runs to the window edge. Slides cross-fade every INTERVAL_MS; hovering,
+// old static hero: text on the left, the photo on the right in a rounded
+// 3:2 frame. Slides cross-fade every INTERVAL_MS; hovering,
 // focusing inside, a hidden tab or the pause button stop it. With
 // prefers-reduced-motion it never advances on its own.
 
@@ -171,9 +171,9 @@ export default function HeroCarousel({
         )}
       </div>
 
-      {/* Photo: runs to the right window edge on wide screens; every photo
-          gets the same soft edges so any upload blends into the background. */}
-      <div className="relative aspect-[3/2] w-full md:-mr-5 md:w-auto xl:-mr-[calc((100vw-80rem)/2+1.25rem)]">
+      {/* Photo: a plain 3:2 frame with rounded corners, so any normal photo
+          looks right (no fading needed); it stays inside the page width. */}
+      <div className="relative aspect-[3/2] w-full overflow-hidden rounded-3xl bg-saffron-50 shadow-[0_24px_48px_-24px_rgba(95,50,10,0.35)] ring-1 ring-saffron-100">
         {slides.map((s, i) => {
           const img = s.image ?? null;
           const active = i === index;
@@ -190,7 +190,7 @@ export default function HeroCarousel({
                   fill
                   priority={i === 0}
                   sizes="(max-width: 768px) 100vw, 60vw"
-                  className="object-cover [mask-image:radial-gradient(ellipse_58%_52%_at_52%_50%,#000_38%,transparent_100%)]"
+                  className="object-cover"
                 />
               ) : (
                 <Image
