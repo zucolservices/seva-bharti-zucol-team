@@ -948,7 +948,7 @@ export interface HomePage {
            */
           content: string;
           /**
-           * Shown on the right in a rounded frame (4:3). Resolution: 1200 × 900 px recommended; minimum 800 × 600 px (smaller looks blurry). Landscape photos work best. Upload limits: max 5 MB, max 40 megapixels, JPG/PNG/WebP/AVIF only.
+           * Shown on the right of the slider, landscape 3:2, with softly faded edges. Resolution: 1500 × 1000 px recommended; minimum 960 × 640 px (smaller looks blurry on large screens). Keep the main subject in the centre — the edges fade out and may be cropped. Landscape photos only; portrait photos get cropped top and bottom. Upload limits: max 5 MB, max 40 megapixels, JPG/PNG/WebP/AVIF only.
            */
           image?: (number | null) | Media;
           id?: string | null;
