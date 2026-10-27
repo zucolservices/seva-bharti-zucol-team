@@ -11,6 +11,8 @@ import { langOf } from "@/lib/view-types";
 // tab stop it; with prefers-reduced-motion it still advances, without the fade.
 
 export type HeroSlide = {
+  /** Pill above the heading; empty → the default badge. */
+  badge?: string | null;
   heading: string;
   content: string;
   image: { url: string; alt: string; width: number; height: number } | null;
@@ -20,11 +22,11 @@ const INTERVAL_MS = 6000;
 
 export default function HeroCarousel({
   slides,
-  badge,
+  defaultBadge,
   fallbackImage,
 }: {
   slides: HeroSlide[];
-  badge?: string | null;
+  defaultBadge: string;
   fallbackImage: { url: string; alt: string };
 }) {
   const [index, setIndex] = useState(0);
@@ -65,20 +67,8 @@ export default function HeroCarousel({
       className="container-wide grid items-center gap-10 py-12 md:grid-cols-[1fr_1.3fr] md:gap-8 md:py-16 lg:py-20"
     >
       <div>
-        {badge && (
-          <span
-            lang={langOf(badge)}
-            className="inline-flex items-center gap-2 rounded-full border border-saffron-200 bg-white/70 px-3 py-1 text-xs font-semibold text-saffron-700 shadow-sm"
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M12 1 3 5v6c0 5.25 3.75 10.16 9 11 5.25-.84 9-5.75 9-11V5l-9-4Zm-1.2 14.4L7 11.6l1.4-1.4 2.4 2.4 5-5L17.2 9l-6.4 6.4Z" />
-            </svg>
-            {badge}
-          </span>
-        )}
-
-        {/* All slides share one grid cell, so the block is as tall as the
-            longest slide and nothing below jumps when the text changes. */}
+        {/* All slides (badge, heading, text) share one grid cell, so the
+            block is as tall as the longest slide and nothing below jumps. */}
         <div className="grid" aria-live={running ? "off" : "polite"}>
           {slides.map((s, i) => {
             const active = i === index;
@@ -98,6 +88,7 @@ export default function HeroCarousel({
                     : "pointer-events-none -translate-y-1 opacity-0 duration-300"
                 }`}
               >
+                <Badge text={s.badge?.trim() || defaultBadge} />
                 {/* The first slide is the page's main heading; the rest are h2. */}
                 {i === 0 ? (
                   <h1 lang={langOf(s.heading)} className="mt-3 text-4xl font-bold leading-[1.1] tracking-tight text-ink md:text-[2.75rem] xl:text-[3.25rem]">
@@ -197,5 +188,19 @@ export default function HeroCarousel({
         })}
       </div>
     </div>
+  );
+}
+
+function Badge({ text }: { text: string }) {
+  return (
+    <span
+      lang={langOf(text)}
+      className="inline-flex items-center gap-2 rounded-full border border-saffron-200 bg-white/70 px-3 py-1 text-xs font-semibold text-saffron-700 shadow-sm"
+    >
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M12 1 3 5v6c0 5.25 3.75 10.16 9 11 5.25-.84 9-5.75 9-11V5l-9-4Zm-1.2 14.4L7 11.6l1.4-1.4 2.4 2.4 5-5L17.2 9l-6.4 6.4Z" />
+      </svg>
+      {text}
+    </span>
   );
 }

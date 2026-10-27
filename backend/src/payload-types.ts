@@ -941,6 +941,10 @@ export interface HomePage {
      */
     slides?:
       | {
+          /**
+           * Small pill above the heading. Leave empty to show the default badge (Hero → Badge, “Empowering Society, Uplifting Lives”).
+           */
+          badge?: string | null;
           heading: string;
           /**
            * 2–4 lines read best.
@@ -2076,6 +2080,7 @@ export interface HomePageSelect<T extends boolean = true> {
         slides?:
           | T
           | {
+              badge?: T;
               heading?: T;
               content?: T;
               image?: T;

@@ -239,6 +239,15 @@ export const HomePage: GlobalConfig = {
             components: { RowLabel: "/components/admin/SlideRowLabel#SlideRowLabel" },
           },
           fields: [
+            {
+              name: "badge",
+              type: "text",
+              maxLength: 80,
+              admin: {
+                description:
+                  "Small pill above the heading. Leave empty to show the default badge (Hero → Badge, “Empowering Society, Uplifting Lives”).",
+              },
+            },
             { name: "heading", type: "text", required: true, maxLength: 120 },
             { name: "content", type: "textarea", required: true, maxLength: 600, admin: { description: "2–4 lines read best." } },
             {

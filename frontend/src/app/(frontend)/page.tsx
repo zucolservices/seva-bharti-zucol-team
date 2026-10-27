@@ -52,6 +52,7 @@ export default async function HomePage() {
     return { url, alt: mediaAlt(m as Parameters<typeof mediaAlt>[0], fallbackAlt), width: media.width ?? 1200, height: media.height ?? 800 };
   };
   const cmsSlides = (hero?.slides ?? []).map((s) => ({
+    badge: s.badge,
     heading: s.heading,
     content: s.content,
     image: slideImage(s.image, s.heading),
@@ -89,7 +90,12 @@ export default async function HomePage() {
     <>
       {/* Hero slider (Home Page → Hero → Slider). */}
       <section className="overflow-hidden bg-gradient-to-br from-saffron-50 via-cream to-sewablue-50">
-        <HeroCarousel slides={heroSlides} badge={hero?.badge} fallbackImage={logo} />
+        <HeroCarousel
+          slides={heroSlides}
+          // Shown on any slide without its own badge.
+          defaultBadge={hero?.badge?.trim() || "Empowering Society, Uplifting Lives"}
+          fallbackImage={logo}
+        />
       </section>
 
       {/* Trust / credentials band */}
