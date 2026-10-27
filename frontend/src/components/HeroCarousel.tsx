@@ -6,9 +6,9 @@ import { langOf } from "@/lib/view-types";
 
 // Home-page hero slider (CMS: Home Page → Hero → Slider). Same layout as the
 // old static hero: text on the left, the photo on the right in a rounded
-// 3:2 frame. Slides cross-fade every INTERVAL_MS; hovering,
-// focusing inside, a hidden tab or the pause button stop it. With
-// prefers-reduced-motion it never advances on its own.
+// 3:2 frame. Slides change every INTERVAL_MS. Only the pause button,
+// keyboard focus inside the slider (not mouse hover or clicks) or a hidden
+// tab stop it; with prefers-reduced-motion it still advances, without the fade.
 
 export type HeroSlide = {
   heading: string;
@@ -29,31 +29,22 @@ export default function HeroCarousel({
 }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false); // pause button
-  const [held, setHeld] = useState(false); // hover / focus inside
-  const [reduced, setReduced] = useState(false);
+  const [held, setHeld] = useState(false); // keyboard focus inside
   const rootRef = useRef<HTMLDivElement>(null);
   const count = slides.length;
 
   const go = useCallback((i: number) => setIndex(((i % count) + count) % count), [count]);
 
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setReduced(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-
   // Restarts on every slide change, so a manual pick gets the full interval.
   useEffect(() => {
-    if (count < 2 || paused || held || reduced) return;
+    if (count < 2 || paused || held) return;
     const t = window.setTimeout(() => {
       if (!document.hidden) go(index + 1);
     }, INTERVAL_MS);
     return () => window.clearTimeout(t);
-  }, [index, count, paused, held, reduced, go]);
+  }, [index, count, paused, held, go]);
 
-  const running = count > 1 && !paused && !held && !reduced;
+  const running = count > 1 && !paused && !held;
 
   return (
     <div
@@ -61,9 +52,9 @@ export default function HeroCarousel({
       role="region"
       aria-roledescription="carousel"
       aria-label="Highlights"
-      onMouseEnter={() => setHeld(true)}
-      onMouseLeave={() => setHeld(false)}
-      onFocus={() => setHeld(true)}
+      // Hold only for keyboard users reading a slide; a mouse click on a dot
+      // also focuses it, but must not stop the slider.
+      onFocus={(e) => setHeld(e.target.matches(":focus-visible"))}
       onBlur={(e) => {
         if (!rootRef.current?.contains(e.relatedTarget as Node)) setHeld(false);
       }}
@@ -173,7 +164,7 @@ export default function HeroCarousel({
 
       {/* Photo: a plain 3:2 frame with rounded corners, so any normal photo
           looks right (no fading needed); it stays inside the page width. */}
-      <div className="relative aspect-[3/2] w-full overflow-hidden rounded-3xl bg-saffron-50 shadow-[0_24px_48px_-24px_rgba(95,50,10,0.35)] ring-1 ring-saffron-100">
+      <div className="relative aspect-[3/2] w-full overflow-hidden rounded-3xl md:translate-x-4 xl:translate-x-10 bg-saffron-50 shadow-[0_24px_48px_-24px_rgba(95,50,10,0.35)] ring-1 ring-saffron-100">
         {slides.map((s, i) => {
           const img = s.image ?? null;
           const active = i === index;
