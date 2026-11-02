@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Suspense } from "react";
 import PageHeader from "@/components/PageHeader";
+import VolunteerList from "@/components/VolunteerList";
 import { getContent } from "@/lib/cms";
+import { VOLUNTEER_APPLY_URL } from "@/lib/volunteers";
 import { resolveVolunteer } from "@/content/resolve";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -9,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: header.eyebrow, description: header.subtitle };
 }
 
-export default async function VolunteerPage() {
+export default async function VolunteerPage({ searchParams }: PageProps<"/volunteer">) {
   const { header: VOLUNTEER_HEADER, capacity: cap, cta: VOLUNTEER_CTA } = resolveVolunteer(
     await getContent("volunteer-content"),
   );
@@ -20,6 +22,14 @@ export default async function VolunteerPage() {
         eyebrow={VOLUNTEER_HEADER.eyebrow}
         title={VOLUNTEER_HEADER.title}
         subtitle={VOLUNTEER_HEADER.subtitle}
+        action={
+          <a
+            href={VOLUNTEER_APPLY_URL}
+            className="inline-block rounded-xl bg-saffron-500 px-6 py-3 font-semibold text-ink shadow-lg shadow-saffron-500/25 transition-colors hover:bg-saffron-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-saffron-600"
+          >
+            {VOLUNTEER_CTA.label}
+          </a>
+        }
       />
 
       {/* Capacity building */}
@@ -31,17 +41,10 @@ export default async function VolunteerPage() {
         </div>
       </section>
 
-      {/* CTA band */}
-      <section className="bg-gradient-to-br from-sewablue-700 to-sewablue-800">
-        <div className="container-page flex justify-center py-10 md:py-12">
-          <Link
-            href={VOLUNTEER_CTA.href}
-            className="shrink-0 rounded-xl bg-saffron-500 px-6 py-3 font-semibold text-ink shadow-lg shadow-black/15 transition-colors hover:bg-saffron-400"
-          >
-            {VOLUNTEER_CTA.label}
-          </Link>
-        </div>
-      </section>
+      {/* Approved volunteers from the dashboard (hidden when there are none) */}
+      <Suspense fallback={null}>
+        <VolunteerList searchParams={searchParams} />
+      </Suspense>
     </>
   );
 }
