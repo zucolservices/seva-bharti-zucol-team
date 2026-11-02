@@ -2,8 +2,9 @@ import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 
 // Volunteer list from the Sewa Bharti dashboard (a separate app, not the CMS).
-// The API is public but returns personal data (mobile, email, PAN); only the
-// safe fields below are mapped, so the rest never reaches a page or the client.
+// The API is public but returns personal data (mobile, email, PAN). The list
+// maps only safe fields; the profile adds mobile, email and PAN masked here on
+// the server, so the full values never reach a page or the client.
 // Only approved volunteers are listed.
 
 export const DASHBOARD_URL = (process.env.DASHBOARD_API_URL || "https://dashboard.sewabhartirajasthan.org").replace(
@@ -41,8 +42,15 @@ export type PublicVolunteerDetail = PublicVolunteer & {
   startDate: string | null;
   endDate: string | null;
   joinedAt: string | null;
+  /** Masked on the server (e.g. 99XXXXXX37, zu***@gmail.com); full values never leave it. */
+  maskedMobile: string;
+  maskedEmail: string;
+  /** e.g. XXXXXX234F (last 4 only). */
+  maskedPan: string;
   /** QR code PNG (data URI) from the dashboard; it encodes the profile URL. */
   qrCode: string | null;
+  /** The dashboard's certificate PDF (served as a download). */
+  certificateUrl: string;
 };
 
 export type VolunteerPage = { volunteers: PublicVolunteer[]; total: number; hasNext: boolean };
@@ -61,6 +69,9 @@ type RawVolunteer = {
   status?: string;
   created_at?: string | null;
   qr_code?: string | null;
+  mobile?: string;
+  email?: string;
+  pancard_number?: string;
 };
 
 const UID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -71,6 +82,27 @@ const QR_MAX_LENGTH = 200_000;
 function clean(value: string | null | undefined): string {
   const v = value?.trim() ?? "";
   return /^(n\/?a|none|nil|-+)$/i.test(v) ? "" : v;
+}
+
+/** "9929844537" → "99XXXXXX37"; "" when too short to mask safely. */
+function maskMobile(value: string | null | undefined): string {
+  const digits = (value ?? "").replace(/\D/g, "");
+  if (digits.length < 8) return "";
+  return digits.slice(0, 2) + "X".repeat(digits.length - 4) + digits.slice(-2);
+}
+
+/** "ABCDE1234F" → "XXXXXX234F"; "" when not a PAN. */
+function maskPan(value: string | null | undefined): string {
+  const pan = (value ?? "").replace(/\s/g, "").toUpperCase();
+  return /^[A-Z]{5}[0-9]{4}[A-Z]$/.test(pan) ? "X".repeat(6) + pan.slice(-4) : "";
+}
+
+/** "zucolsubs@gmail.com" → "zu***@gmail.com"; "" when not an email. */
+function maskEmail(value: string | null | undefined): string {
+  const m = /^([^@\s]+)@([^@\s]+\.[^@\s]+)$/.exec(value?.trim() ?? "");
+  if (!m) return "";
+  const local = m[1];
+  return `${local.slice(0, local.length > 3 ? 2 : 1)}***@${m[2]}`;
 }
 
 function isPublic(v: RawVolunteer): v is RawVolunteer & { uid: string; full_name: string } {
@@ -158,6 +190,11 @@ export async function getVolunteerDetail(uid: string): Promise<PublicVolunteerDe
     startDate: v.start_date ?? null,
     endDate: v.end_date ?? null,
     joinedAt: v.created_at ?? null,
+    maskedMobile: maskMobile(v.mobile),
+    maskedEmail: maskEmail(v.email),
+    maskedPan: maskPan(v.pancard_number),
     qrCode: v.qr_code && v.qr_code.length <= QR_MAX_LENGTH && QR_RE.test(v.qr_code) ? v.qr_code : null,
+    // The trailing slash matters: without it the dashboard answers with a redirect.
+    certificateUrl: `${DASHBOARD_URL}/api/content/volunteers/${v.uid}/certificate/`,
   };
 }
