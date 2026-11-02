@@ -34,7 +34,10 @@ function formatDate(iso: string | null): string {
   if (!iso) return "";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" });
+  // Non-breaking spaces keep each date on one line; a range wraps only at the dash.
+  return d
+    .toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" })
+    .replace(/ /g, " ");
 }
 
 function initials(name: string): string {
@@ -60,54 +63,54 @@ export default async function VolunteerProfilePage({ params }: { params: Params 
   ].filter((r) => r.value);
 
   return (
-    <article>
-      <section className="border-b border-saffron-100 bg-gradient-to-br from-saffron-50 via-cream to-sewablue-50">
-        <div className="container-page py-10 md:py-12">
-          <Link
-            href="/volunteer#volunteers"
-            className="inline-flex items-center gap-1 text-sm font-medium text-sewablue-600 hover:underline"
-          >
-            <span aria-hidden>←</span> <span lang="hi">सभी स्वयंसेवक</span> (All volunteers)
-          </Link>
+    <article className="border-b border-saffron-100 bg-gradient-to-br from-saffron-50 via-cream to-sewablue-50">
+      <div className="container-page py-6 md:py-8">
+        <Link
+          href="/volunteer#volunteers"
+          className="inline-flex items-center gap-1 text-sm font-medium text-sewablue-600 hover:underline"
+        >
+          <span aria-hidden>←</span> <span lang="hi">सभी स्वयंसेवक</span> (All volunteers)
+        </Link>
 
-          {/* Phone: profile block, then the QR card centred below.
-              ≥md: profile block left, QR card right. */}
-          <div className="mt-6 grid gap-8 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+        {/* Phone: profile, details, then the QR card centred below.
+            ≥md: profile + details on the left, QR card on the right. */}
+        <div className="mt-4 grid gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-start md:gap-8">
+          <div className="@container min-w-0">
             {/* Phone: photo above the name, centred. ≥sm: photo beside the name. */}
-            <div className="flex min-w-0 flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
+            <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
               {v.photoUrl ? (
                 <Image
                   src={v.photoUrl}
                   alt={v.name}
-                  width={112}
-                  height={112}
+                  width={96}
+                  height={96}
                   unoptimized
                   priority
-                  className="h-24 w-24 shrink-0 rounded-full object-cover shadow-md ring-4 ring-white sm:h-28 sm:w-28"
+                  className="h-20 w-20 shrink-0 rounded-full object-cover shadow-md ring-4 ring-white sm:h-24 sm:w-24"
                 />
               ) : (
                 <span
                   aria-hidden
-                  className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-sewablue-700 text-3xl font-bold text-white shadow-md ring-4 ring-white sm:h-28 sm:w-28 sm:text-4xl"
+                  className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-sewablue-700 text-3xl font-bold text-white shadow-md ring-4 ring-white sm:h-24 sm:w-24"
                 >
                   {initials(v.name)}
                 </span>
               )}
               <div className="min-w-0 max-w-full">
-                <h1 className="text-balance wrap-anywhere text-[clamp(1.75rem,1.2rem+2.4vw,2.5rem)] font-bold leading-snug text-ink">
+                <h1 className="text-balance wrap-anywhere text-[clamp(1.5rem,1.1rem+2vw,2.25rem)] font-bold leading-tight text-ink">
                   {v.name}
                 </h1>
-                {v.role && (
-                  <span className="mt-2 inline-block rounded-full bg-saffron-100 px-3 py-1 text-sm font-medium text-saffron-800">
-                    <span lang="hi">{v.role.hi}</span> · {v.role.en}
-                  </span>
-                )}
-                <div>
+                <div className="mt-2 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                  {v.role && (
+                    <span className="rounded-full bg-saffron-100 px-3 py-1 text-sm font-medium text-saffron-800">
+                      <span lang="hi">{v.role.hi}</span> · {v.role.en}
+                    </span>
+                  )}
                   {/* Each label part stays on one line; the parts wrap as whole units. */}
                   <a
                     href={v.certificateUrl}
                     download
-                    className="mt-4 inline-flex max-w-full flex-wrap items-baseline justify-center gap-x-1.5 rounded-lg bg-saffron-500 px-5 py-2.5 text-sm font-semibold text-ink shadow-md shadow-saffron-500/25 transition-colors hover:bg-saffron-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-saffron-600"
+                    className="inline-flex max-w-full flex-wrap items-baseline justify-center gap-x-1.5 rounded-lg bg-saffron-500 px-4 py-2 text-sm font-semibold text-ink shadow-md shadow-saffron-500/25 transition-colors hover:bg-saffron-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-saffron-600"
                   >
                     <svg
                       width="16"
@@ -130,60 +133,52 @@ export default async function VolunteerProfilePage({ params }: { params: Params 
               </div>
             </div>
 
-            {v.qrCode && (
-              <aside
-                aria-labelledby="volunteer-qr-heading"
-                className="mx-auto flex w-full max-w-xs flex-col items-center rounded-xl border border-saffron-100 bg-white p-4 text-center shadow-sm md:mx-0 md:w-72"
-              >
-                <h2 id="volunteer-qr-heading" className="text-balance text-sm font-bold text-ink">
-                  <span lang="hi">क्यूआर कोड</span> <span className="font-normal text-ink-soft">(QR code)</span>
+            {rows.length > 0 && (
+              <section aria-labelledby="volunteer-details-heading" className="mt-6">
+                <h2 id="volunteer-details-heading" className="text-lg font-bold text-ink">
+                  <span lang="hi">विवरण</span> <span className="font-normal text-ink-soft">(Details)</span>
                 </h2>
-                {/* eslint-disable-next-line @next/next/no-img-element -- inline data URI from the API */}
-                <img
-                  src={v.qrCode}
-                  alt={`QR code for ${v.name}'s volunteer profile`}
-                  width={160}
-                  height={160}
-                  className="mt-3 aspect-square w-40 max-w-full [image-rendering:pixelated]"
-                />
-                <p className="mt-2 text-balance text-xs text-ink-soft">
-                  <span lang="hi" className="block">स्कैन करके यह प्रोफ़ाइल खोलें</span>
-                  Scan to open this profile
-                </p>
-                <a
-                  href={v.qrCode}
-                  download={`volunteer-${v.uid}-qr.png`}
-                  className="mt-3 flex w-full flex-wrap items-baseline justify-center gap-x-1.5 rounded-lg border border-saffron-300 bg-white px-3 py-2 text-sm font-semibold text-saffron-700 transition-colors hover:bg-saffron-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-saffron-600"
-                >
-                  <span lang="hi" className="whitespace-nowrap">क्यूआर डाउनलोड करें</span>
-                  <span className="whitespace-nowrap font-normal">(Download QR)</span>
-                </a>
-              </aside>
+                {/* Cells flow by the column's own width: 1 → 2 (≥20rem) → 3 (≥48rem) per row.
+                    The 1px gaps over the border colour draw the dividers. */}
+                <dl className="mt-3 grid gap-px overflow-hidden rounded-xl border border-saffron-100 bg-saffron-100 @xs:grid-cols-2 @3xl:grid-cols-3">
+                  {rows.map((r) => (
+                    <div key={r.en} className="min-w-0 bg-white px-3 py-2.5 sm:px-4">
+                      <dt className="text-pretty text-xs text-ink-soft">
+                        <span lang="hi" className="font-medium text-ink">{r.hi}</span> ({r.en})
+                      </dt>
+                      {/* wrap-anywhere: long emails or words break instead of overflowing. */}
+                      <dd className="mt-0.5 text-pretty wrap-anywhere font-medium text-ink">{r.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
             )}
           </div>
-        </div>
-      </section>
 
-      {rows.length > 0 && (
-        <section className="container-page max-w-4xl py-10 md:py-12">
-          <h2 className="text-xl font-bold text-ink">
-            <span lang="hi">विवरण</span> <span className="font-normal text-ink-soft">(Details)</span>
-          </h2>
-          <span aria-hidden className="mt-3 block h-1 w-16 rounded-full bg-saffron-500" />
-          {/* Phone: label above value. ≥sm: label | value columns. */}
-          <dl className="mt-6 divide-y divide-saffron-100 rounded-xl border border-saffron-100 bg-white">
-            {rows.map((r) => (
-              <div key={r.en} className="grid gap-1 px-4 py-3.5 sm:grid-cols-[minmax(9rem,13rem)_minmax(0,1fr)] sm:gap-4 sm:px-5">
-                <dt className="text-pretty text-sm text-ink-soft">
-                  <span lang="hi" className="font-medium text-ink">{r.hi}</span> ({r.en})
-                </dt>
-                {/* wrap-anywhere: long emails or words break instead of overflowing. */}
-                <dd className="min-w-0 text-pretty wrap-anywhere text-ink">{r.value}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-      )}
+          {v.qrCode && (
+            <aside
+              aria-labelledby="volunteer-qr-heading"
+              className="mx-auto flex w-full max-w-xs flex-col items-center rounded-xl border border-saffron-100 bg-white p-4 text-center shadow-sm md:mx-0 md:w-72"
+            >
+              <h2 id="volunteer-qr-heading" className="text-balance text-sm font-bold text-ink">
+                <span lang="hi">क्यूआर कोड</span> <span className="font-normal text-ink-soft">(QR code)</span>
+              </h2>
+              {/* eslint-disable-next-line @next/next/no-img-element -- inline data URI from the API */}
+              <img
+                src={v.qrCode}
+                alt={`QR code for ${v.name}'s volunteer profile`}
+                width={144}
+                height={144}
+                className="mt-2 aspect-square w-36 max-w-full [image-rendering:pixelated]"
+              />
+              <p className="mt-2 text-balance text-xs text-ink-soft">
+                <span lang="hi" className="block">स्कैन करके यह प्रोफ़ाइल खोलें</span>
+                Scan to open this profile
+              </p>
+            </aside>
+          )}
+        </div>
+      </div>
     </article>
   );
 }
