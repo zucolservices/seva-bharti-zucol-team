@@ -22,13 +22,25 @@ export const ROLE_LABELS: Record<string, { hi: string; en: string }> = {
   other: { hi: "अन्य", en: "Other" },
 };
 
+/** How many volunteers the page shows at first and adds per "Show more". */
+export const VOLUNTEERS_PAGE_SIZE = 12;
+
 export type PublicVolunteer = {
   uid: string;
   name: string;
   city: string;
-  roleType: string;
+  role: { hi: string; en: string } | null;
   designation: string;
   photoUrl: string | null;
+};
+
+/** Extra public fields shown on /volunteer/<uid> (details API). */
+export type PublicVolunteerDetail = PublicVolunteer & {
+  institute: string;
+  interest: string;
+  startDate: string | null;
+  endDate: string | null;
+  joinedAt: string | null;
 };
 
 export type VolunteerPage = { volunteers: PublicVolunteer[]; total: number; hasNext: boolean };
@@ -39,9 +51,31 @@ type RawVolunteer = {
   city?: string;
   role_type?: string;
   designation?: string;
+  institute_name?: string;
+  interest?: string;
+  start_date?: string | null;
+  end_date?: string | null;
   photo_url?: string | null;
   status?: string;
+  created_at?: string | null;
 };
+
+const UID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function isPublic(v: RawVolunteer): v is RawVolunteer & { uid: string; full_name: string } {
+  return v.status === "approved" && Boolean(v.uid) && Boolean(v.full_name?.trim());
+}
+
+function toPublic(v: RawVolunteer & { uid: string; full_name: string }): PublicVolunteer {
+  return {
+    uid: v.uid,
+    name: v.full_name.trim(),
+    city: v.city?.trim() ?? "",
+    role: ROLE_LABELS[v.role_type ?? ""] ?? null,
+    designation: v.designation?.trim() ?? "",
+    photoUrl: absoluteUrl(v.photo_url),
+  };
+}
 
 const TIMEOUT_MS = 10_000;
 const EMPTY: VolunteerPage = { volunteers: [], total: 0, hasNext: false };
@@ -74,16 +108,7 @@ export async function getVolunteers(page: number, pageSize: number): Promise<Vol
     const data = (await res.json()) as { count?: number; next?: string | null; results?: RawVolunteer[] };
     if (!Array.isArray(data.results)) throw new Error("dashboard volunteers response has no results");
 
-    const volunteers = data.results
-      .filter((v) => v.status === "approved" && v.uid && v.full_name)
-      .map((v) => ({
-        uid: v.uid!,
-        name: v.full_name!.trim(),
-        city: v.city?.trim() ?? "",
-        roleType: v.role_type ?? "",
-        designation: v.designation?.trim() ?? "",
-        photoUrl: absoluteUrl(v.photo_url),
-      }));
+    const volunteers = data.results.filter(isPublic).map(toPublic);
     cacheLife("minutes");
     return { volunteers, total: data.count ?? volunteers.length, hasNext: Boolean(data.next) };
   } catch (err) {
@@ -92,4 +117,35 @@ export async function getVolunteers(page: number, pageSize: number): Promise<Vol
     cacheLife("seconds");
     return EMPTY;
   }
+}
+
+/**
+ * One approved volunteer's public profile, or null when not found / not
+ * approved. Throws when the API is unreachable (the error page then offers a
+ * retry instead of a misleading 404).
+ */
+export async function getVolunteerDetail(uid: string): Promise<PublicVolunteerDetail | null> {
+  "use cache";
+  cacheTag("volunteers");
+  if (!UID_RE.test(uid)) return null;
+  const res = await fetch(`${DASHBOARD_URL}/api/content/volunteers/${uid}/`, {
+    headers: { Accept: "application/json" },
+    signal: AbortSignal.timeout(TIMEOUT_MS),
+  });
+  if (res.status === 404) {
+    cacheLife("minutes");
+    return null;
+  }
+  if (!res.ok) throw new Error(`dashboard responded ${res.status}`);
+  const v = (await res.json()) as RawVolunteer;
+  cacheLife("minutes");
+  if (!isPublic(v)) return null;
+  return {
+    ...toPublic(v),
+    institute: v.institute_name?.trim() ?? "",
+    interest: v.interest?.trim() ?? "",
+    startDate: v.start_date ?? null,
+    endDate: v.end_date ?? null,
+    joinedAt: v.created_at ?? null,
+  };
 }

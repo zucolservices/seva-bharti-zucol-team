@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: header.eyebrow, description: header.subtitle };
 }
 
-export default async function VolunteerPage({ searchParams }: PageProps<"/volunteer">) {
+export default async function VolunteerPage() {
   const { header: VOLUNTEER_HEADER, capacity: cap, cta: VOLUNTEER_CTA } = resolveVolunteer(
     await getContent("volunteer-content"),
   );
@@ -43,7 +43,7 @@ export default async function VolunteerPage({ searchParams }: PageProps<"/volunt
 
       {/* Approved volunteers from the dashboard (hidden when there are none) */}
       <Suspense fallback={null}>
-        <VolunteerList searchParams={searchParams} />
+        <VolunteerList />
       </Suspense>
     </>
   );
