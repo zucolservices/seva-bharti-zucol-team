@@ -267,7 +267,7 @@ export const PAGE_CONTENT: Record<string, Record<string, unknown>> = {
       "text": "To ensure our mission's sustainability, we conduct intensive two-day training modules for Karyakartas. By mastering modern publicity, social media management, and the systematic archiving of our historical impact, our volunteers are equipped to carry the torch forward independently."
     },
     "cta": {
-      "label": "Join the Circle of Service",
+      "label": "Become A Volunteer",
       "href": "/contact"
     }
   },

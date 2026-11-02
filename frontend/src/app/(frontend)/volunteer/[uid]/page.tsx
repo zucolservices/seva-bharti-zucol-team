@@ -6,8 +6,8 @@ import { connection } from "next/server";
 import { getVolunteerDetail } from "@/lib/volunteers";
 
 // Volunteer profile from the dashboard details API
-// (/api/content/volunteers/<uid>/). Only approved volunteers; mobile, email and
-// PAN are shown masked (see src/lib/volunteers.ts).
+// (/api/content/volunteers/<uid>/). Only approved volunteers; mobile and email
+// are shown masked, PAN is never shown (see src/lib/volunteers.ts).
 //
 // Under Cache Components generateStaticParams must return at least one param.
 // Nothing is prerendered at build (a dashboard outage must not fail the
@@ -57,7 +57,6 @@ export default async function VolunteerProfilePage({ params }: { params: Params 
   const rows = [
     { hi: "मोबाइल", en: "Mobile", value: v.maskedMobile },
     { hi: "ई मेल", en: "Email", value: v.maskedEmail },
-    { hi: "पैन", en: "PAN", value: v.maskedPan },
     { hi: "पद", en: "Designation", value: v.designation },
     { hi: "संस्थान", en: "Institute", value: v.institute },
     { hi: "शहर", en: "City", value: v.city },
@@ -76,9 +75,7 @@ export default async function VolunteerProfilePage({ params }: { params: Params 
           <span aria-hidden>←</span> <span lang="hi">सभी स्वयंसेवक</span> (All volunteers)
         </Link>
 
-        {/* Phone: profile, details, then the QR card centred below.
-            ≥md: profile + details on the left, QR card on the right. */}
-        <div className="mt-4 grid gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-start md:gap-8">
+        <div className="mt-4">
           <div className="@container min-w-0">
             {/* Phone: photo above the name, centred. ≥sm: photo beside the name. */}
             <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
@@ -110,29 +107,6 @@ export default async function VolunteerProfilePage({ params }: { params: Params 
                       <span lang="hi">{v.role.hi}</span> · {v.role.en}
                     </span>
                   )}
-                  {/* Each label part stays on one line; the parts wrap as whole units. */}
-                  <a
-                    href={v.certificateUrl}
-                    download
-                    className="inline-flex max-w-full flex-wrap items-baseline justify-center gap-x-1.5 rounded-lg bg-saffron-500 px-4 py-2 text-sm font-semibold text-ink shadow-md shadow-saffron-500/25 transition-colors hover:bg-saffron-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-saffron-600"
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden
-                      className="self-center"
-                    >
-                      <path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19h14" />
-                    </svg>
-                    <span lang="hi" className="whitespace-nowrap">प्रमाण पत्र डाउनलोड करें</span>
-                    <span className="whitespace-nowrap font-normal">(Download certificate)</span>
-                  </a>
                 </div>
               </div>
             </div>
@@ -161,28 +135,6 @@ export default async function VolunteerProfilePage({ params }: { params: Params 
             )}
           </div>
 
-          {v.qrCode && (
-            <aside
-              aria-labelledby="volunteer-qr-heading"
-              className="mx-auto flex w-full max-w-xs flex-col items-center rounded-xl border border-saffron-100 bg-white p-4 text-center shadow-sm md:mx-0 md:w-72"
-            >
-              <h2 id="volunteer-qr-heading" className="text-balance text-sm font-bold text-ink">
-                <span lang="hi">क्यूआर कोड</span> <span className="font-normal text-ink-soft">(QR code)</span>
-              </h2>
-              {/* eslint-disable-next-line @next/next/no-img-element -- inline data URI from the API */}
-              <img
-                src={v.qrCode}
-                alt={`QR code for ${v.name}'s volunteer profile`}
-                width={144}
-                height={144}
-                className="mt-2 aspect-square w-36 max-w-full [image-rendering:pixelated]"
-              />
-              <p className="mt-2 text-balance text-xs text-ink-soft">
-                <span lang="hi" className="block">स्कैन करके यह प्रोफ़ाइल खोलें</span>
-                Scan to open this profile
-              </p>
-            </aside>
-          )}
         </div>
       </div>
     </article>

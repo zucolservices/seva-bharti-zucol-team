@@ -4,8 +4,8 @@ import { siteUrl } from "@/lib/site-url";
 
 // Volunteer list from the Sewa Bharti dashboard (a separate app, not the CMS).
 // The API is public but returns personal data (mobile, email, PAN). The list
-// maps only safe fields; the profile adds mobile, email and PAN masked here on
-// the server, so the full values never reach a page or the client.
+// maps only safe fields; the profile adds mobile and email masked here on the
+// server, so the full values never reach a page or the client. PAN is never used.
 // Only approved volunteers are listed.
 //
 // Never cached: a volunteer approved (or edited) in the dashboard must show
@@ -55,12 +55,6 @@ export type PublicVolunteerDetail = PublicVolunteer & {
   /** Masked on the server (e.g. 99XXXXXX37, zu***@gmail.com); full values never leave it. */
   maskedMobile: string;
   maskedEmail: string;
-  /** e.g. XXXXXX234F (last 4 only). */
-  maskedPan: string;
-  /** QR code PNG (data URI) from the dashboard; it encodes the profile URL. */
-  qrCode: string | null;
-  /** The dashboard's certificate PDF (served as a download). */
-  certificateUrl: string;
 };
 
 export type VolunteerPage = { volunteers: PublicVolunteer[]; total: number; hasNext: boolean };
@@ -78,15 +72,11 @@ type RawVolunteer = {
   photo_url?: string | null;
   status?: string;
   created_at?: string | null;
-  qr_code?: string | null;
   mobile?: string;
   email?: string;
-  pancard_number?: string;
 };
 
 const UID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const QR_RE = /^data:image\/png;base64,[A-Za-z0-9+/]+=*$/;
-const QR_MAX_LENGTH = 200_000;
 
 /** Trimmed text, or "" for empty and placeholder values such as "NA" / "-". */
 function clean(value: string | null | undefined): string {
@@ -99,12 +89,6 @@ function maskMobile(value: string | null | undefined): string {
   const digits = (value ?? "").replace(/\D/g, "");
   if (digits.length < 8) return "";
   return digits.slice(0, 2) + "X".repeat(digits.length - 4) + digits.slice(-2);
-}
-
-/** "ABCDE1234F" → "XXXXXX234F"; "" when not a PAN. */
-function maskPan(value: string | null | undefined): string {
-  const pan = (value ?? "").replace(/\s/g, "").toUpperCase();
-  return /^[A-Z]{5}[0-9]{4}[A-Z]$/.test(pan) ? "X".repeat(6) + pan.slice(-4) : "";
 }
 
 /** "zucolsubs@gmail.com" → "zu***@gmail.com"; "" when not an email. */
@@ -194,9 +178,5 @@ export const getVolunteerDetail = cache(async (uid: string): Promise<PublicVolun
     joinedAt: v.created_at ?? null,
     maskedMobile: maskMobile(v.mobile),
     maskedEmail: maskEmail(v.email),
-    maskedPan: maskPan(v.pancard_number),
-    qrCode: v.qr_code && v.qr_code.length <= QR_MAX_LENGTH && QR_RE.test(v.qr_code) ? v.qr_code : null,
-    // The trailing slash matters: without it the dashboard answers with a redirect.
-    certificateUrl: `${DASHBOARD_URL}/api/content/volunteers/${v.uid}/certificate/`,
   };
 });

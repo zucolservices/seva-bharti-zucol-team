@@ -5,6 +5,7 @@ import VolunteerList from "@/components/VolunteerList";
 import { getContent } from "@/lib/cms";
 import { VOLUNTEER_APPLY_URL } from "@/lib/volunteers";
 import { resolveVolunteer } from "@/content/resolve";
+import { VOLUNTEER_CTA } from "@/content/pages/volunteer";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { header } = resolveVolunteer(await getContent("volunteer-content"));
@@ -12,9 +13,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function VolunteerPage() {
-  const { header: VOLUNTEER_HEADER, capacity: cap, cta: VOLUNTEER_CTA } = resolveVolunteer(
-    await getContent("volunteer-content"),
-  );
+  // The apply button is fixed ("Become A Volunteer" → dashboard form); the CMS
+  // still stores an older label/link for it, which would otherwise win.
+  const { header: VOLUNTEER_HEADER, capacity: cap } = resolveVolunteer(await getContent("volunteer-content"));
 
   return (
     <>
