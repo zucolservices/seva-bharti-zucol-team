@@ -138,11 +138,13 @@ export default async function VolunteerProfilePage({ params }: { params: Params 
                 <h2 id="volunteer-details-heading" className="text-lg font-bold text-ink">
                   <span lang="hi">विवरण</span> <span className="font-normal text-ink-soft">(Details)</span>
                 </h2>
-                {/* Cells flow by the column's own width: 1 → 2 (≥20rem) → 3 (≥48rem) per row.
-                    The 1px gaps over the border colour draw the dividers. */}
-                <dl className="mt-3 grid gap-px overflow-hidden rounded-xl border border-saffron-100 bg-saffron-100 @xs:grid-cols-2 @3xl:grid-cols-3">
+                {/* Wrapping rows: each cell is at least 9.5rem or 30% of the column,
+                    so ~2 per row on phones and 3 on desktop. Cells grow to fill a
+                    short last row, so no empty slot is left. The 1px gaps over the
+                    border colour draw the dividers. */}
+                <dl className="mt-3 flex flex-wrap gap-px overflow-hidden rounded-xl border border-saffron-100 bg-saffron-100">
                   {rows.map((r) => (
-                    <div key={r.en} className="min-w-0 bg-white px-3 py-2.5 sm:px-4">
+                    <div key={r.en} className="min-w-0 grow basis-[max(9.5rem,30%)] bg-white px-3 py-2.5 sm:px-4">
                       <dt className="text-pretty text-xs text-ink-soft">
                         <span lang="hi" className="font-medium text-ink">{r.hi}</span> ({r.en})
                       </dt>
