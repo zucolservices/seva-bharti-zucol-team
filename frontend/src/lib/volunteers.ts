@@ -1,11 +1,16 @@
 import "server-only";
-import { cacheLife, cacheTag } from "next/cache";
+import { cache } from "react";
+import { siteUrl } from "@/lib/site-url";
 
 // Volunteer list from the Sewa Bharti dashboard (a separate app, not the CMS).
 // The API is public but returns personal data (mobile, email, PAN). The list
 // maps only safe fields; the profile adds mobile, email and PAN masked here on
 // the server, so the full values never reach a page or the client.
 // Only approved volunteers are listed.
+//
+// Never cached: a volunteer approved (or edited) in the dashboard must show
+// on the next page load, not after a stale copy expires. Callers render
+// these at request time (see connection() in VolunteerList / the profile page).
 
 export const DASHBOARD_URL = (process.env.DASHBOARD_API_URL || "https://dashboard.sewabhartirajasthan.org").replace(
   /\/+$/,
@@ -13,7 +18,12 @@ export const DASHBOARD_URL = (process.env.DASHBOARD_API_URL || "https://dashboar
 );
 
 /** The dashboard's own "apply as volunteer" form. */
-export const VOLUNTEER_APPLY_URL = `${DASHBOARD_URL}/volunteer`;
+// `next` asks the dashboard to send applicants back to the list afterwards. The
+// dashboard does not read it yet (it only shows a thank-you screen); it ignores
+// unknown params, so this is safe now and works once the dashboard adds support.
+export const VOLUNTEER_APPLY_URL = `${DASHBOARD_URL}/volunteer?${new URLSearchParams({
+  next: `${siteUrl()}/volunteer#volunteers`,
+})}`;
 
 export const ROLE_LABELS: Record<string, { hi: string; en: string }> = {
   education: { hi: "शिक्षा", en: "Education" },
@@ -134,17 +144,15 @@ function absoluteUrl(url: string | null | undefined): string | null {
 }
 
 export async function getVolunteers(page: number, pageSize: number): Promise<VolunteerPage> {
-  "use cache";
-  cacheTag("volunteers");
   try {
     const qs = new URLSearchParams({ status: "approved", page: String(page), page_size: String(pageSize) });
     const res = await fetch(`${DASHBOARD_URL}/api/content/volunteers/?${qs}`, {
       headers: { Accept: "application/json" },
+      cache: "no-store",
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
     // The API answers 404 for a page past the end.
     if (res.status === 404) {
-      cacheLife("minutes");
       return EMPTY;
     }
     if (!res.ok) throw new Error(`dashboard responded ${res.status}`);
@@ -152,12 +160,10 @@ export async function getVolunteers(page: number, pageSize: number): Promise<Vol
     if (!Array.isArray(data.results)) throw new Error("dashboard volunteers response has no results");
 
     const volunteers = data.results.filter(isPublic).map(toPublic);
-    cacheLife("minutes");
     return { volunteers, total: data.count ?? volunteers.length, hasNext: Boolean(data.next) };
   } catch (err) {
     // Message only — never response bodies (they hold personal data).
     console.error("[dashboard] volunteers failed:", err instanceof Error ? err.message : String(err));
-    cacheLife("seconds");
     return EMPTY;
   }
 }
@@ -167,21 +173,17 @@ export async function getVolunteers(page: number, pageSize: number): Promise<Vol
  * approved. Throws when the API is unreachable (the error page then offers a
  * retry instead of a misleading 404).
  */
-export async function getVolunteerDetail(uid: string): Promise<PublicVolunteerDetail | null> {
-  "use cache";
-  cacheTag("volunteers");
+// cache(): generateMetadata and the page share one fetch per request.
+export const getVolunteerDetail = cache(async (uid: string): Promise<PublicVolunteerDetail | null> => {
   if (!UID_RE.test(uid)) return null;
   const res = await fetch(`${DASHBOARD_URL}/api/content/volunteers/${uid}/`, {
     headers: { Accept: "application/json" },
+    cache: "no-store",
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });
-  if (res.status === 404) {
-    cacheLife("minutes");
-    return null;
-  }
+  if (res.status === 404) return null;
   if (!res.ok) throw new Error(`dashboard responded ${res.status}`);
   const v = (await res.json()) as RawVolunteer;
-  cacheLife("minutes");
   if (!isPublic(v)) return null;
   return {
     ...toPublic(v),
@@ -197,4 +199,4 @@ export async function getVolunteerDetail(uid: string): Promise<PublicVolunteerDe
     // The trailing slash matters: without it the dashboard answers with a redirect.
     certificateUrl: `${DASHBOARD_URL}/api/content/volunteers/${v.uid}/certificate/`,
   };
-}
+});

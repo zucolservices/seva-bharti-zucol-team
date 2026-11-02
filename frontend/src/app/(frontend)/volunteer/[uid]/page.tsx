@@ -2,16 +2,18 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { getVolunteerDetail } from "@/lib/volunteers";
 
 // Volunteer profile from the dashboard details API
-// (/api/content/volunteers/<uid>/). Only approved volunteers and only public
-// fields (see src/lib/volunteers.ts); mobile, email and PAN are never shown.
+// (/api/content/volunteers/<uid>/). Only approved volunteers; mobile, email and
+// PAN are shown masked (see src/lib/volunteers.ts).
 //
 // Under Cache Components generateStaticParams must return at least one param.
 // Nothing is prerendered at build (a dashboard outage must not fail the
 // build): the placeholder never matches a real uid (validated as a UUID) and
-// renders notFound(); real profiles render on first request and are cached.
+// renders notFound(). Real profiles render on every request (connection()),
+// so dashboard edits and approvals show at once.
 const PLACEHOLDER_UID = "__placeholder__";
 
 // Unknown uids must answer with a real HTTP 404, so the volunteer is looked up
@@ -25,6 +27,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+  await connection();
   const volunteer = await getVolunteerDetail((await params).uid);
   if (!volunteer) return {};
   return { title: `${volunteer.name} · Volunteer` };
@@ -46,6 +49,7 @@ function initials(name: string): string {
 }
 
 export default async function VolunteerProfilePage({ params }: { params: Params }) {
+  await connection();
   const v = await getVolunteerDetail((await params).uid);
   if (!v) notFound();
 
