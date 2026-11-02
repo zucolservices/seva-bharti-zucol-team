@@ -11,7 +11,7 @@ function initials(name: string): string {
   return (parts[0]?.[0] ?? "") + (parts.length > 1 ? parts[parts.length - 1][0] : "");
 }
 
-/** Volunteer cards linking to /volunteer/<uid>; "Show more" appends the next page. */
+/** Volunteer cards with a "View full profile" button to /volunteer/<uid>; "Show more" appends the next page. */
 export default function VolunteerGrid({ initial, initialHasNext }: { initial: PublicVolunteer[]; initialHasNext: boolean }) {
   const [volunteers, setVolunteers] = useState(initial);
   const [page, setPage] = useState(1);
@@ -39,13 +39,13 @@ export default function VolunteerGrid({ initial, initialHasNext }: { initial: Pu
 
   return (
     <>
-      <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {volunteers.map((v) => (
-          <li key={v.uid}>
-            <Link
-              href={`/volunteer/${v.uid}`}
-              className="flex items-center gap-4 rounded-xl border border-saffron-100 bg-white p-4 shadow-sm transition-colors hover:border-saffron-300 hover:bg-saffron-50/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-saffron-600"
-            >
+          <li
+            key={v.uid}
+            className="flex flex-col rounded-xl border border-saffron-100 bg-white p-4 shadow-sm transition-colors hover:border-saffron-300"
+          >
+            <div className="flex items-center gap-4">
               {v.photoUrl ? (
                 <Image
                   src={v.photoUrl}
@@ -74,6 +74,17 @@ export default function VolunteerGrid({ initial, initialHasNext }: { initial: Pu
                   )}
                   {v.city && <span className="text-ink-soft">{v.city}</span>}
                 </span>
+              </span>
+            </div>
+            <Link
+              href={`/volunteer/${v.uid}`}
+              aria-label={`${v.name}: पूरी जानकारी देखें (View full profile)`}
+              className="mt-4 flex flex-wrap items-baseline justify-center gap-x-1.5 rounded-lg bg-saffron-500 px-4 py-2.5 text-sm font-semibold text-ink transition-colors hover:bg-saffron-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-saffron-600"
+            >
+              {/* Each part stays on one line; the parts wrap as whole units. */}
+              <span lang="hi" className="whitespace-nowrap">पूरी जानकारी देखें</span>
+              <span className="whitespace-nowrap font-normal">
+                (View full profile) <span aria-hidden>→</span>
               </span>
             </Link>
           </li>

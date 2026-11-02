@@ -41,6 +41,8 @@ export type PublicVolunteerDetail = PublicVolunteer & {
   startDate: string | null;
   endDate: string | null;
   joinedAt: string | null;
+  /** QR code PNG (data URI) from the dashboard; it encodes the profile URL. */
+  qrCode: string | null;
 };
 
 export type VolunteerPage = { volunteers: PublicVolunteer[]; total: number; hasNext: boolean };
@@ -58,9 +60,18 @@ type RawVolunteer = {
   photo_url?: string | null;
   status?: string;
   created_at?: string | null;
+  qr_code?: string | null;
 };
 
 const UID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const QR_RE = /^data:image\/png;base64,[A-Za-z0-9+/]+=*$/;
+const QR_MAX_LENGTH = 200_000;
+
+/** Trimmed text, or "" for empty and placeholder values such as "NA" / "-". */
+function clean(value: string | null | undefined): string {
+  const v = value?.trim() ?? "";
+  return /^(n\/?a|none|nil|-+)$/i.test(v) ? "" : v;
+}
 
 function isPublic(v: RawVolunteer): v is RawVolunteer & { uid: string; full_name: string } {
   return v.status === "approved" && Boolean(v.uid) && Boolean(v.full_name?.trim());
@@ -70,9 +81,9 @@ function toPublic(v: RawVolunteer & { uid: string; full_name: string }): PublicV
   return {
     uid: v.uid,
     name: v.full_name.trim(),
-    city: v.city?.trim() ?? "",
+    city: clean(v.city),
     role: ROLE_LABELS[v.role_type ?? ""] ?? null,
-    designation: v.designation?.trim() ?? "",
+    designation: clean(v.designation),
     photoUrl: absoluteUrl(v.photo_url),
   };
 }
@@ -142,10 +153,11 @@ export async function getVolunteerDetail(uid: string): Promise<PublicVolunteerDe
   if (!isPublic(v)) return null;
   return {
     ...toPublic(v),
-    institute: v.institute_name?.trim() ?? "",
-    interest: v.interest?.trim() ?? "",
+    institute: clean(v.institute_name),
+    interest: clean(v.interest),
     startDate: v.start_date ?? null,
     endDate: v.end_date ?? null,
     joinedAt: v.created_at ?? null,
+    qrCode: v.qr_code && v.qr_code.length <= QR_MAX_LENGTH && QR_RE.test(v.qr_code) ? v.qr_code : null,
   };
 }
