@@ -5,6 +5,7 @@ import "./globals.css";
 import TopBar from "@/components/TopBar";
 import Header, { HeaderView } from "@/components/Header";
 import Footer from "@/components/Footer";
+import ScrollManager from "@/components/ScrollManager";
 import { getContent, getGlobal, getPillars } from "@/lib/cms";
 import { buildNavItems, siteLogo, a11yLabels } from "@/lib/site-data";
 import type { HeaderData } from "@/lib/view-types";
@@ -78,8 +79,14 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang="en" className={`${latin.variable} ${devanagari.variable}`}>
+    // data-scroll-behavior: Next turns the CSS smooth scroll off during route
+    // changes, so a new page doesn't animate its scroll (in-page #links stay smooth).
+    <html lang="en" data-scroll-behavior="smooth" className={`${latin.variable} ${devanagari.variable}`}>
       <body className="flex min-h-screen flex-col">
+        {/* Every new page opens at the top (or its #section); see ScrollManager. */}
+        <Suspense fallback={null}>
+          <ScrollManager />
+        </Suspense>
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-saffron-700 focus:shadow"
