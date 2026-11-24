@@ -7,6 +7,45 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 // Payload CMS backend (separate app). Server-side only — never NEXT_PUBLIC_.
 const CMS_URL = (process.env.CMS_URL || "http://localhost:3001").replace(/\/+$/, "");
 
+const isDev = process.env.NODE_ENV !== "production";
+
+// Origins the browser loads images from directly (unoptimized <Image>):
+// volunteer photos (dashboard, see lib/volunteers.ts), YouTube thumbnails,
+// and our Vercel Blob store. Everything else goes through /_next/image (self).
+const DASHBOARD_ORIGIN = new URL(process.env.DASHBOARD_API_URL || "https://dashboard.sewabhartirajasthan.org").origin;
+const imgSources = [
+  "'self'",
+  "data:",
+  "blob:",
+  "https://i.ytimg.com",
+  DASHBOARD_ORIGIN,
+  ...(process.env.BLOB_STORE_HOSTNAME ? [`https://${process.env.BLOB_STORE_HOSTNAME}`] : []),
+];
+
+// Content Security Policy (SA-05). Nonces are not used: they force dynamic
+// rendering and are incompatible with Partial Prerendering / cacheComponents
+// (see node_modules/next/dist/docs/01-app/02-guides/content-security-policy.md,
+// "Without Nonces"). Scripts are limited to our own origin, so an injected
+// third-party <script src> or exfiltration via fetch/XHR to another host is
+// blocked; Next's inline bootstrap scripts still need 'unsafe-inline'.
+const csp = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  "style-src 'self' 'unsafe-inline'",
+  `img-src ${imgSources.join(" ")}`,
+  "font-src 'self'",
+  `connect-src 'self'${isDev ? " ws: wss:" : ""}`,
+  "media-src 'self'",
+  "worker-src 'self' blob:",
+  "manifest-src 'self'",
+  "frame-src 'none'",
+  "frame-ancestors 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  ...(isDev ? [] : ["upgrade-insecure-requests"]),
+].join("; ");
+
 // Baseline security headers for every route.
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -14,10 +53,7 @@ const securityHeaders = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
-  {
-    key: "Content-Security-Policy",
-    value: "frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self'",
-  },
+  { key: "Content-Security-Policy", value: csp },
 ];
 
 const nextConfig: NextConfig = {
