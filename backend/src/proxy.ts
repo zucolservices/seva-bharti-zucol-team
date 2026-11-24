@@ -48,13 +48,39 @@ const MAX_KEYS = 10_000;
 // - On Vercel the edge sets x-real-ip / overwrites x-forwarded-for.
 // - Self-hosted: only trust X-Forwarded-For entries added by our own proxies
 //   (TRUSTED_PROXY_HOPS = how many reverse proxies sit in front of Next).
+// Without trusted hops every visitor shares one "unknown" bucket, so 10 bad
+// logins from anyone would lock every admin out for 15 minutes (SA-03).
+// Warn loudly (once per process) when production runs in that state.
+let warnedNoHops = false;
+function trustedHops(): number {
+  const raw = process.env.TRUSTED_PROXY_HOPS ?? "0";
+  const hops = Number(raw);
+  const valid = Number.isInteger(hops) && hops >= 0 && hops <= 10;
+  if ((!valid || hops === 0) && process.env.NODE_ENV === "production" && !warnedNoHops) {
+    warnedNoHops = true;
+    console.warn(
+      JSON.stringify({
+        msg: "ratelimit.config",
+        warning:
+          "TRUSTED_PROXY_HOPS is unset/0/invalid on a self-hosted production server: all clients share one " +
+          "rate-limit bucket and one attacker can lock everyone out of login. Set it to the number of reverse " +
+          "proxies in front of Next (1 behind nginx) and make nginx overwrite X-Forwarded-For.",
+        value: raw,
+      }),
+    );
+  }
+  return valid ? hops : 0;
+}
+
 function clientIp(req: NextRequest): string {
   if (process.env.VERCEL) {
     return (req.headers.get("x-real-ip") ?? req.headers.get("x-forwarded-for")?.split(",")[0] ?? "unknown").trim();
   }
-  const hops = Number(process.env.TRUSTED_PROXY_HOPS ?? 0);
+  const hops = trustedHops();
   const xff = (req.headers.get("x-forwarded-for") ?? "").split(",").map((s) => s.trim()).filter(Boolean);
-  return hops > 0 && xff.length >= hops ? xff[xff.length - hops] : "unknown";
+  const ip = hops > 0 && xff.length >= hops ? xff[xff.length - hops] : "";
+  // Same sanity check as the frontend: IP characters only, bounded length.
+  return ip && ip.length <= 45 && isIP(ip) !== 0 ? ip.toLowerCase() : "unknown";
 }
 
 // Canonical path so encodings / slashes / case can't dodge a rule
