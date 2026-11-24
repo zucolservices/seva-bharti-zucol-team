@@ -117,11 +117,17 @@ function toPublic(v: RawVolunteer & { uid: string; full_name: string }): PublicV
 const TIMEOUT_MS = 10_000;
 const EMPTY: VolunteerPage = { volunteers: [], total: 0, hasNext: false };
 
+// Photos are rendered unoptimized, so the visitor's browser fetches them
+// directly. Only accept URLs on the dashboard's own origin (relative paths
+// resolve to it); any other host would let a bad dashboard value track
+// visitors (SA-06). The CSP img-src allows the same origin.
+const DASHBOARD_ORIGIN = new URL(DASHBOARD_URL).origin;
+
 function absoluteUrl(url: string | null | undefined): string | null {
   if (!url) return null;
   try {
     const u = new URL(url, DASHBOARD_URL);
-    return u.protocol === "https:" || u.protocol === "http:" ? u.toString() : null;
+    return u.origin === DASHBOARD_ORIGIN ? u.toString() : null;
   } catch {
     return null;
   }
