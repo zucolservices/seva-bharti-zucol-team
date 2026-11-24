@@ -15,18 +15,18 @@
     "audit": "npm audit --omit=dev"
   },
   "dependencies": {
-    "@payloadcms/db-postgres": "^3.90.2",
-    "@payloadcms/email-nodemailer": "^3.90.2",
-    "@payloadcms/next": "^3.90.2",
-    "@payloadcms/richtext-lexical": "^3.90.2",
-    "@payloadcms/storage-vercel-blob": "^3.90.2",
-    "@payloadcms/ui": "^3.90.2",
+    "@payloadcms/db-postgres": "^3.94.1",
+    "@payloadcms/email-nodemailer": "^3.94.1",
+    "@payloadcms/next": "^3.94.1",
+    "@payloadcms/richtext-lexical": "^3.94.1",
+    "@payloadcms/storage-vercel-blob": "^3.94.1",
+    "@payloadcms/ui": "^3.94.1",
     "graphql": "^16.14.2",
-    "next": "16.4.1",
-    "nodemailer": "^10.1.1",
-    "payload": "^3.90.2",
-    "react": "19.3.0",
-    "react-dom": "19.3.0",
+    "next": "16.4.6",
+    "nodemailer": "^10.6.1",
+    "payload": "^3.94.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
     "sharp": "^0.35.5"
   },
   "devDependencies": {
@@ -38,14 +38,17 @@
   },
   "type": "module",
   "overrides": {
-    "payload": {
-      "undici": "7.29.1"
+    "@vercel/blob": {
+      "undici": "^6.29.1"
+    },
+    "@lexical/headless": {
+      "happy-dom": "^21.0.4"
     },
     "monaco-editor": {
-      "dompurify": "3.4.16"
+      "dompurify": "^3.5.0"
     },
     "@payloadcms/email-nodemailer": {
-      "nodemailer": "10.1.1"
+      "nodemailer": "$nodemailer"
     }
   }
 }
